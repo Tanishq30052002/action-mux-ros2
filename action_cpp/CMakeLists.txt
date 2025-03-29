@@ -18,6 +18,7 @@ find_package(rosidl_default_generators REQUIRED)  # Ensure action generation
 rosidl_generate_interfaces(${PROJECT_NAME} "action/MoveToPose.action" DEPENDENCIES geometry_msgs)
 
 # Build action server
+include_directories(include )
 add_executable(action_server src/action_server.cpp)
 ament_target_dependencies(action_server rclcpp rclcpp_action geometry_msgs action_tutorials_interfaces)
 
