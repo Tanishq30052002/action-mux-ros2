@@ -2,6 +2,7 @@
 #include <rclcpp_action/rclcpp_action.hpp>
 
 #include "action_cpp/action/move_to_pose.hpp"
+#include "action_cpp/visibility_control.h"
 #include "geometry_msgs/msg/pose.hpp"
 
 using namespace std::chrono_literals;
