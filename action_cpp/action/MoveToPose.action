@@ -1,0 +1,8 @@
+# Goal (desired target position)
+geometry_msgs/Pose target_pose
+---
+# Result (true if goal reached, false if aborted)
+bool success
+---
+# Feedback (robot's current position)
+geometry_msgs/Pose current_pose
