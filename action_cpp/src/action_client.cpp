@@ -29,10 +29,10 @@ class MyActionClient : public rclcpp::Node {
   void goal_callback(const geometry_msgs::msg::Pose::SharedPtr msg) {
     using namespace std::chrono_literals;
 
-    // if (!action_client_->wait_for_action_server(std::chrono::seconds(1))) {
-    //   RCLCPP_ERROR(this->get_logger(), "Action Server not available!");
-    //   return;
-    // }
+    if (!action_client_->wait_for_action_server(5s)) {
+      RCLCPP_ERROR(this->get_logger(), "Action Server not available!");
+      return;
+    }
 
     // Cancel current goal if one exists
     if (current_goal_handle_) {
