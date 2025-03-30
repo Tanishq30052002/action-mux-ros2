@@ -1,98 +1,125 @@
+#include <mutex>
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
 
 #include "action_cpp/action/move_to_pose.hpp"
-#include "action_cpp/visibility_control.h"
-#include "std_msgs/msg/bool.hpp"
 
 using namespace std::chrono_literals;
 
 class MoveToPoseServer : public rclcpp::Node {
  public:
   using MoveToPose = action_cpp::action::MoveToPose;
-  using GoalHandle = rclcpp_action::ServerGoalHandle<MoveToPose>;
+  using MoveToPoseGoalHandle = rclcpp_action::ServerGoalHandle<MoveToPose>;
 
   MoveToPoseServer() : Node("move_to_pose_server") {
+    using namespace std::placeholders;
     action_server_ = rclcpp_action::create_server<MoveToPose>(
         this, "move_to_pose",
-        std::bind(&MoveToPoseServer::handle_goal, this, std::placeholders::_1,
-                  std::placeholders::_2),
-        std::bind(&MoveToPoseServer::handle_cancel, this,
-                  std::placeholders::_1),
-        std::bind(&MoveToPoseServer::handle_accepted, this,
-                  std::placeholders::_1));
+        std::bind(&MoveToPoseServer::handle_goal, this, _1, _2),
+        std::bind(&MoveToPoseServer::handle_cancel, this, _1),
+        std::bind(&MoveToPoseServer::handle_accepted, this, _1));
 
     RCLCPP_INFO(this->get_logger(), "MoveToPose Action Server is running...");
   }
 
  private:
   rclcpp_action::Server<MoveToPose>::SharedPtr action_server_;
-  std::shared_ptr<GoalHandle> active_goal_;
-  std_msgs::msg::Bool goal_currently_active_;
+  std::shared_ptr<MoveToPoseGoalHandle> active_goal_;
+  std::mutex goal_mutex_;
 
+  // Handle new goals
   rclcpp_action::GoalResponse handle_goal(
       const rclcpp_action::GoalUUID &uuid,
       std::shared_ptr<const MoveToPose::Goal> goal) {
     (void)uuid;
-    RCLCPP_INFO(this->get_logger(), "Received new goal!");
+    std::lock_guard<std::mutex> lock(goal_mutex_);
 
+    // If an active goal exists, cancel it properly
     if (active_goal_ && active_goal_->is_active()) {
       RCLCPP_WARN(this->get_logger(),
-                  "New goal received, aborting the previous one!");
+                  "[handle_goal] Requesting cancellation of previous goal.");
+
+      // Request cancellation instead of forcing `canceled()` directly
       active_goal_->abort(std::make_shared<MoveToPose::Result>());
+
+      active_goal_.reset();
     }
 
-    // Only accept a new goal if `active_goal_` is reset
-    if (active_goal_) {
-      RCLCPP_WARN(this->get_logger(), "Ignoring duplicate goal!");
-      return rclcpp_action::GoalResponse::REJECT;
-    }
-
+    RCLCPP_INFO(this->get_logger(), "[handle_goal] Received new goal!");
     return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
   }
 
+  // Handle cancel requests
   rclcpp_action::CancelResponse handle_cancel(
-      const std::shared_ptr<GoalHandle> goal_handle) {
-    RCLCPP_WARN(this->get_logger(), "Goal canceled!");
-    return rclcpp_action::CancelResponse::ACCEPT;
+      const std::shared_ptr<MoveToPoseGoalHandle> goal_handle) {
+    std::lock_guard<std::mutex> lock(goal_mutex_);
+
+    if (goal_handle->is_active()) {
+      RCLCPP_WARN(this->get_logger(),
+                  "[handle_cancel] Moving goal to CANCELING.");
+      return rclcpp_action::CancelResponse::ACCEPT;  // Moves the goal to
+                                                     // CANCELING state
+    }
+
+    return rclcpp_action::CancelResponse::REJECT;
   }
 
-  void handle_accepted(const std::shared_ptr<GoalHandle> goal_handle) {
-    active_goal_ = goal_handle;
+  // Accept and process goal
+  void handle_accepted(
+      const std::shared_ptr<MoveToPoseGoalHandle> goal_handle) {
+    {
+      std::lock_guard<std::mutex> lock(goal_mutex_);
+      active_goal_ = goal_handle;
+    }
     std::thread(&MoveToPoseServer::execute, this, goal_handle).detach();
   }
 
-  void execute(const std::shared_ptr<GoalHandle> goal_handle) {
-    RCLCPP_INFO(this->get_logger(), "Executing goal...");
-
+  // Execute goal and handle cancellation
+  void execute(const std::shared_ptr<MoveToPoseGoalHandle> goal_handle) {
+    auto result = std::make_shared<MoveToPose::Result>();
     auto feedback = std::make_shared<MoveToPose::Feedback>();
-    rclcpp::Rate rate(1);  // 1Hz loop (one update per second)
 
-    for (int i = 0; i < 5; ++i) {
-      if (goal_handle->is_canceling()) {
-        RCLCPP_WARN(this->get_logger(), "Goal aborted before completion.");
-        goal_handle->canceled(std::make_shared<MoveToPose::Result>());
-        active_goal_.reset();  // **Reset active goal after canceling**
-        return;
+    rclcpp::Rate rate(1);
+    for (int i = 1; i <= 5; ++i) {
+      {
+        std::lock_guard<std::mutex> lock(goal_mutex_);
+        if (!active_goal_ || active_goal_ != goal_handle) {
+          RCLCPP_WARN(this->get_logger(),
+                      "[execute] Goal was replaced. Stopping execution.");
+          return;  // Exit thread safely
+        }
+
+        if (goal_handle->is_canceling()) {
+          RCLCPP_WARN(this->get_logger(),
+                      "[execute] Goal is canceling, finalizing as CANCELED.");
+
+          // Ensure goal is still in CANCELING before calling canceled()
+          if (goal_handle->is_active()) {
+            goal_handle->canceled(result);
+          }
+
+          active_goal_.reset();
+          return;
+        }
       }
 
       feedback->current_pose = true;
       goal_handle->publish_feedback(feedback);
-      RCLCPP_INFO(this->get_logger(), "Processing goal... %d sec elapsed",
-                  i + 1);
-
+      RCLCPP_INFO(this->get_logger(),
+                  "[execute] Processing goal: %d sec elapsed", i);
       rate.sleep();
     }
 
-    if (goal_handle->is_active()) {
-      auto result = std::make_shared<MoveToPose::Result>();
-      result->success = true;
-      goal_handle->succeed(result);
-      RCLCPP_INFO(this->get_logger(),
-                  "Goal processed successfully after 5 seconds!");
+    {
+      std::lock_guard<std::mutex> lock(goal_mutex_);
+      if (goal_handle->is_active()) {
+        result->success = true;
+        goal_handle->succeed(result);
+        RCLCPP_INFO(this->get_logger(), "Goal processed successfully!");
+      }
+      active_goal_.reset();
     }
 
-    active_goal_.reset();  // **Ensure active goal is reset after execution**
     RCLCPP_INFO(this->get_logger(), "Waiting for the next goal...");
   }
 };
