@@ -56,8 +56,7 @@ class MoveToPoseServer : public rclcpp::Node {
     if (goal_handle->is_active()) {
       RCLCPP_WARN(this->get_logger(),
                   "[handle_cancel] cancelling goal, called by client.");
-      return rclcpp_action::CancelResponse::ACCEPT;  // Moves the goal to
-                                                     // CANCELING state
+      return rclcpp_action::CancelResponse::ACCEPT;
     }
 
     return rclcpp_action::CancelResponse::REJECT;
@@ -78,7 +77,7 @@ class MoveToPoseServer : public rclcpp::Node {
     auto result = std::make_shared<MoveToPose::Result>();
     auto feedback = std::make_shared<MoveToPose::Feedback>();
 
-    int frequency = 10;  // Hz
+    int frequency = 100;  // Hz
     rclcpp::Rate rate(frequency);
     for (int i = 1; i <= 5 * frequency; ++i) {
       {

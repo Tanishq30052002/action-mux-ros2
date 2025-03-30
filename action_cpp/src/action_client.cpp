@@ -67,7 +67,7 @@ class MyActionClient : public rclcpp::Node {
   void feedback_callback(
       GoalHandle::SharedPtr,
       const std::shared_ptr<const MyAction::Feedback> feedback) {
-    RCLCPP_INFO(this->get_logger(), "[feedback_callback] Received feedback!");
+    bool current_pose = feedback->current_pose;
   }
 
   void result_callback(const GoalHandle::WrappedResult &result) {
