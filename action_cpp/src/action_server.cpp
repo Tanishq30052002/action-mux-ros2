@@ -41,11 +41,9 @@ class MoveToPoseServer : public rclcpp::Node {
     std::lock_guard<std::mutex> lock(goal_mutex_);
 
     if (goal_handle->is_active()) {
-      RCLCPP_WARN(this->get_logger(),
-                  "[handle_cancel] cancelling goal, called by client.");
+      RCLCPP_WARN(this->get_logger(), "[handle_cancel] Cancelling Goal");
       return rclcpp_action::CancelResponse::ACCEPT;
     }
-
     return rclcpp_action::CancelResponse::REJECT;
   }
 
@@ -62,36 +60,38 @@ class MoveToPoseServer : public rclcpp::Node {
 
     int frequency = 100;  // Hz
     rclcpp::Rate rate(frequency);
-    for (int i = 1; i <= 5 * frequency; ++i) {
+    for (int i = 1; i <= 5 * frequency && rclcpp::ok(); ++i) {
       if (goal_handle->is_canceling()) {
-        RCLCPP_WARN(this->get_logger(), "[execute] Canceling Executing Goal");
+        feedback->current_pose = false;
+        result->success = false;
         goal_handle->canceled(result);
+        RCLCPP_WARN(this->get_logger(), "[execute] Goal Cancelled");
         return;
       }
-
       feedback->current_pose = true;
       goal_handle->publish_feedback(feedback);
-      RCLCPP_INFO(this->get_logger(),
-                  "[execute] Processing goal: %d sec elapsed", i);
+      RCLCPP_INFO(this->get_logger(), "[execute] Feedback Published: %d", i);
       rate.sleep();
     }
-
     {
       std::lock_guard<std::mutex> lock(goal_mutex_);
-      if (goal_handle->is_active()) {
+      if (rclcpp::ok() && goal_handle->is_active()) {
         result->success = true;
         goal_handle->succeed(result);
-        RCLCPP_INFO(this->get_logger(), "Goal processed successfully!");
+        RCLCPP_INFO(this->get_logger(), "[execute] Goal Process Successfully");
       }
     }
-
-    RCLCPP_INFO(this->get_logger(), "Waiting for the next goal...");
+    if (!rclcpp::ok()) {
+      RCLCPP_WARN(this->get_logger(),
+                  "[execute] ROS is shutting down, stopping execution.");
+      rclcpp::shutdown();
+      return;
+    }
   }
 };
 
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
   rclcpp::spin(std::make_shared<MoveToPoseServer>());
-  rclcpp::shutdown();
   return 0;
 }
