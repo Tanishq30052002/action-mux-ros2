@@ -14,7 +14,6 @@ class MyActionClient : public rclcpp::Node {
     action_client_ =
         rclcpp_action::create_client<MyAction>(this, "move_to_pose");
 
-    // Subscribe to a topic that publishes geometry_msgs::msg::Pose
     subscriber_ = this->create_subscription<geometry_msgs::msg::Pose>(
         "/goal_pose", 10,
         std::bind(&MyActionClient::goal_callback, this, std::placeholders::_1));
@@ -26,29 +25,6 @@ class MyActionClient : public rclcpp::Node {
   rclcpp_action::Client<MyAction>::SharedPtr action_client_;
   rclcpp::Subscription<geometry_msgs::msg::Pose>::SharedPtr subscriber_;
 
-  void send_new_goal(const geometry_msgs::msg::Pose &goal_pose) {
-    auto send_goal_options = rclcpp_action::Client<MyAction>::SendGoalOptions();
-    send_goal_options.result_callback =
-        [this](const GoalHandle::WrappedResult &result) {
-          if (result.code == rclcpp_action::ResultCode::SUCCEEDED) {
-            RCLCPP_WARN(this->get_logger(), "[send_new_goal] Succeeded");
-          } else if (result.code == rclcpp_action::ResultCode::CANCELED) {
-            RCLCPP_WARN(this->get_logger(), "[send_new_goal] Cancelled");
-          } else {
-            RCLCPP_ERROR(this->get_logger(),
-                         "[send_new_goal] Failed with code: %d",
-                         static_cast<int>(result.code));
-            return;
-          }
-        };
-
-    RCLCPP_INFO(this->get_logger(), "[send_new_goal] sending new goal");
-    auto goal = MyAction::Goal();
-    goal.target_pose = true;
-    auto future_goal_handle =
-        action_client_->async_send_goal(goal, send_goal_options);
-  }
-
   void goal_callback(const geometry_msgs::msg::Pose::SharedPtr msg) {
     using namespace std::chrono_literals;
     if (!action_client_->wait_for_action_server(5s)) {
@@ -57,9 +33,53 @@ class MyActionClient : public rclcpp::Node {
       return;
     }
 
-    RCLCPP_INFO(this->get_logger(), "[goal_callback]  Received new goal!");
-
+    RCLCPP_INFO(this->get_logger(), "[goal_callback] Received new goal!");
     send_new_goal(*msg);
+  }
+
+  void send_new_goal(const geometry_msgs::msg::Pose &goal_pose) {
+    auto goal = MyAction::Goal();
+    goal.target_pose = true;
+
+    auto send_goal_options = rclcpp_action::Client<MyAction>::SendGoalOptions();
+    send_goal_options.goal_response_callback = std::bind(
+        &MyActionClient::goal_response_callback, this, std::placeholders::_1);
+    send_goal_options.feedback_callback =
+        std::bind(&MyActionClient::feedback_callback, this,
+                  std::placeholders::_1, std::placeholders::_2);
+    send_goal_options.result_callback = std::bind(
+        &MyActionClient::result_callback, this, std::placeholders::_1);
+
+    RCLCPP_INFO(this->get_logger(), "[send_new_goal] Sending new goal");
+    action_client_->async_send_goal(goal, send_goal_options);
+  }
+
+  void goal_response_callback(const GoalHandle::SharedPtr &goal_handle) {
+    if (!goal_handle) {
+      RCLCPP_ERROR(this->get_logger(),
+                   "[goal_response_callback] Goal was rejected by server.");
+    } else {
+      RCLCPP_INFO(this->get_logger(),
+                  "[goal_response_callback] Goal accepted!");
+    }
+  }
+
+  void feedback_callback(
+      GoalHandle::SharedPtr,
+      const std::shared_ptr<const MyAction::Feedback> feedback) {
+    RCLCPP_INFO(this->get_logger(), "[feedback_callback] Received feedback!");
+  }
+
+  void result_callback(const GoalHandle::WrappedResult &result) {
+    if (result.code == rclcpp_action::ResultCode::SUCCEEDED) {
+      RCLCPP_INFO(this->get_logger(), "[result_callback] Goal succeeded!");
+    } else if (result.code == rclcpp_action::ResultCode::CANCELED) {
+      RCLCPP_WARN(this->get_logger(), "[result_callback] Goal was canceled.");
+    } else {
+      RCLCPP_ERROR(this->get_logger(),
+                   "[result_callback] Goal failed with code: %d",
+                   static_cast<int>(result.code));
+    }
   }
 };
 
