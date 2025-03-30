@@ -15,7 +15,7 @@ find_package(action_tutorials_interfaces REQUIRED)
 find_package(rosidl_default_generators REQUIRED)  # Ensure action generation
 
 # Generate ROS 2 action interfaces
-rosidl_generate_interfaces(${PROJECT_NAME} "action/MoveToPose.action" DEPENDENCIES geometry_msgs)
+rosidl_generate_interfaces(${PROJECT_NAME} "action/MoveToPose.action" DEPENDENCIES std_msgs)
 
 # Build action server
 include_directories(include )

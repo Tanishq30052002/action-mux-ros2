@@ -1,8 +1,9 @@
-# Goal (desired target position)
-geometry_msgs/Pose target_pose
+# Goal (true if new goal received)
+bool target_pose
 ---
 # Result (true if goal reached, false if aborted)
 bool success
 ---
-# Feedback (robot's current position)
-geometry_msgs/Pose current_pose
+# Feedback (true if server is processing goal and not preempted)
+# (false if preempted)
+bool current_pose
