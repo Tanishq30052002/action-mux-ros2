@@ -24,7 +24,6 @@ class MoveToPoseServer : public rclcpp::Node {
 
  private:
   rclcpp_action::Server<MoveToPose>::SharedPtr action_server_;
-  std::shared_ptr<MoveToPoseGoalHandle> active_goal_;
   std::mutex goal_mutex_;
 
   // Handle new goals
@@ -32,18 +31,6 @@ class MoveToPoseServer : public rclcpp::Node {
       const rclcpp_action::GoalUUID &uuid,
       std::shared_ptr<const MoveToPose::Goal> goal) {
     (void)uuid;
-    std::lock_guard<std::mutex> lock(goal_mutex_);
-
-    // If an active goal exists, cancel it properly
-    if (active_goal_ && active_goal_->is_active()) {
-      RCLCPP_WARN(this->get_logger(),
-                  "[handle_goal] cancelling previous goal.");
-
-      active_goal_->is_canceling();
-
-      active_goal_.reset();
-    }
-
     RCLCPP_INFO(this->get_logger(), "[handle_goal] Received new goal!");
     return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
   }
@@ -65,10 +52,6 @@ class MoveToPoseServer : public rclcpp::Node {
   // Accept and process goal
   void handle_accepted(
       const std::shared_ptr<MoveToPoseGoalHandle> goal_handle) {
-    {
-      std::lock_guard<std::mutex> lock(goal_mutex_);
-      active_goal_ = goal_handle;
-    }
     std::thread(&MoveToPoseServer::execute, this, goal_handle).detach();
   }
 
@@ -80,13 +63,10 @@ class MoveToPoseServer : public rclcpp::Node {
     int frequency = 100;  // Hz
     rclcpp::Rate rate(frequency);
     for (int i = 1; i <= 5 * frequency; ++i) {
-      {
-        std::lock_guard<std::mutex> lock(goal_mutex_);
-        if (!active_goal_ || active_goal_ != goal_handle) {
-          RCLCPP_WARN(this->get_logger(),
-                      "[execute] Goal was replaced. Stopping execution.");
-          return;  // Exit thread safely
-        }
+      if (goal_handle->is_canceling()) {
+        RCLCPP_WARN(this->get_logger(), "[execute] Canceling Executing Goal");
+        goal_handle->canceled(result);
+        return;
       }
 
       feedback->current_pose = true;
@@ -103,7 +83,6 @@ class MoveToPoseServer : public rclcpp::Node {
         goal_handle->succeed(result);
         RCLCPP_INFO(this->get_logger(), "Goal processed successfully!");
       }
-      active_goal_.reset();
     }
 
     RCLCPP_INFO(this->get_logger(), "Waiting for the next goal...");

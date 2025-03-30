@@ -24,6 +24,7 @@ class MyActionClient : public rclcpp::Node {
  private:
   rclcpp_action::Client<MyAction>::SharedPtr action_client_;
   rclcpp::Subscription<geometry_msgs::msg::Pose>::SharedPtr subscriber_;
+  rclcpp_action::ClientGoalHandle<MyAction>::SharedPtr current_goal_handle_;
 
   void goal_callback(const geometry_msgs::msg::Pose::SharedPtr msg) {
     using namespace std::chrono_literals;
@@ -34,6 +35,15 @@ class MyActionClient : public rclcpp::Node {
     }
 
     RCLCPP_INFO(this->get_logger(), "[goal_callback] Received new goal!");
+    // If an active goal exists, cancel it before sending a new one
+    if (current_goal_handle_) {
+      RCLCPP_WARN(this->get_logger(),
+                  "[goal_callback] Current Goal Active, Cancelling it");
+
+      auto cancel_future =
+          action_client_->async_cancel_goal(current_goal_handle_);
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
     send_new_goal(*msg);
   }
 
@@ -51,7 +61,15 @@ class MyActionClient : public rclcpp::Node {
         &MyActionClient::result_callback, this, std::placeholders::_1);
 
     RCLCPP_INFO(this->get_logger(), "[send_new_goal] Sending new goal");
-    action_client_->async_send_goal(goal, send_goal_options);
+    auto future_goal_handle =
+        action_client_->async_send_goal(goal, send_goal_options);
+
+    // Handle future goal assignment
+    std::thread([this, future_goal_handle]() {
+      // Blocks until goal handle is ready
+      auto goal_handle = future_goal_handle.get();
+      if (goal_handle) current_goal_handle_ = goal_handle;
+    }).detach();
   }
 
   void goal_response_callback(const GoalHandle::SharedPtr &goal_handle) {
@@ -73,6 +91,7 @@ class MyActionClient : public rclcpp::Node {
   void result_callback(const GoalHandle::WrappedResult &result) {
     if (result.code == rclcpp_action::ResultCode::SUCCEEDED) {
       RCLCPP_INFO(this->get_logger(), "[result_callback] Goal succeeded!");
+      current_goal_handle_ = nullptr;
     } else if (result.code == rclcpp_action::ResultCode::CANCELED) {
       RCLCPP_WARN(this->get_logger(), "[result_callback] Goal was canceled.");
     } else {
