@@ -88,17 +88,6 @@ class MoveToPoseServer : public rclcpp::Node {
                       "[execute] Goal was replaced. Stopping execution.");
           return;  // Exit thread safely
         }
-
-        if (goal_handle->is_canceling()) {
-          RCLCPP_WARN(this->get_logger(),
-                      "[execute] Goal is canceling, finalizing as CANCELED.");
-
-          // Ensure goal is still in CANCELING before calling canceled()
-          if (goal_handle->is_active()) goal_handle->canceled(result);
-
-          active_goal_.reset();
-          return;
-        }
       }
 
       feedback->current_pose = true;
