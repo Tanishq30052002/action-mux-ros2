@@ -39,10 +39,10 @@ class MyActionClient : public rclcpp::Node {
             RCLCPP_WARN(this->get_logger(), "[send_new_goal] Cancelled");
           } else if (result.code == rclcpp_action::ResultCode::ABORTED) {
             RCLCPP_WARN(this->get_logger(), "[send_new_goal] Aborted");
-            current_goal_handle_ = nullptr;
+            return;
           } else if (result.code == rclcpp_action::ResultCode::UNKNOWN) {
             RCLCPP_WARN(this->get_logger(), "[send_new_goal] Unknown");
-            current_goal_handle_ = nullptr;
+            return;
           }
         };
 

@@ -40,7 +40,8 @@ class MoveToPoseServer : public rclcpp::Node {
                   "[handle_goal] Requesting cancellation of previous goal.");
 
       // Request cancellation instead of forcing `canceled()` directly
-      active_goal_->abort(std::make_shared<MoveToPose::Result>());
+      // active_goal_->abort(std::make_shared<MoveToPose::Result>());
+      active_goal_->is_canceling();
 
       active_goal_.reset();
     }
@@ -79,8 +80,9 @@ class MoveToPoseServer : public rclcpp::Node {
     auto result = std::make_shared<MoveToPose::Result>();
     auto feedback = std::make_shared<MoveToPose::Feedback>();
 
-    rclcpp::Rate rate(1);
-    for (int i = 1; i <= 5; ++i) {
+    int frequency = 10;  // Hz
+    rclcpp::Rate rate(frequency);
+    for (int i = 1; i <= 5 * frequency; ++i) {
       {
         std::lock_guard<std::mutex> lock(goal_mutex_);
         if (!active_goal_ || active_goal_ != goal_handle) {
