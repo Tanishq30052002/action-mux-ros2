@@ -37,10 +37,8 @@ class MoveToPoseServer : public rclcpp::Node {
     // If an active goal exists, cancel it properly
     if (active_goal_ && active_goal_->is_active()) {
       RCLCPP_WARN(this->get_logger(),
-                  "[handle_goal] Requesting cancellation of previous goal.");
+                  "[handle_goal] cancelling previous goal.");
 
-      // Request cancellation instead of forcing `canceled()` directly
-      // active_goal_->abort(std::make_shared<MoveToPose::Result>());
       active_goal_->is_canceling();
 
       active_goal_.reset();
@@ -57,7 +55,7 @@ class MoveToPoseServer : public rclcpp::Node {
 
     if (goal_handle->is_active()) {
       RCLCPP_WARN(this->get_logger(),
-                  "[handle_cancel] Moving goal to CANCELING.");
+                  "[handle_cancel] cancelling goal, called by client.");
       return rclcpp_action::CancelResponse::ACCEPT;  // Moves the goal to
                                                      // CANCELING state
     }
@@ -96,9 +94,7 @@ class MoveToPoseServer : public rclcpp::Node {
                       "[execute] Goal is canceling, finalizing as CANCELED.");
 
           // Ensure goal is still in CANCELING before calling canceled()
-          if (goal_handle->is_active()) {
-            goal_handle->canceled(result);
-          }
+          if (goal_handle->is_active()) goal_handle->canceled(result);
 
           active_goal_.reset();
           return;
