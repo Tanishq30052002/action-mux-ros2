@@ -35,11 +35,19 @@ rosidl_get_typesupport_target(action_client ${PROJECT_NAME} rosidl_typesupport_c
 target_link_libraries(action_client ${PROJECT_NAME}__rosidl_typesupport_cpp)
 
 # Build goal publisher
-add_executable(goal_publisher src/goal_publisher.cpp)
-ament_target_dependencies(goal_publisher rclcpp geometry_msgs)
+add_executable(goal_publisher_3s src/goal_publisher_3s.cpp)
+ament_target_dependencies(goal_publisher_3s rclcpp geometry_msgs)
+
+# Build goal publisher
+add_executable(goal_publisher_5s src/goal_publisher_5s.cpp)
+ament_target_dependencies(goal_publisher_5s rclcpp geometry_msgs)
+
+# Build goal publisher
+add_executable(goal_publisher_7s src/goal_publisher_7s.cpp)
+ament_target_dependencies(goal_publisher_7s rclcpp geometry_msgs)
 
 # Install executables
-install(TARGETS action_server action_client goal_publisher DESTINATION bin/${PROJECT_NAME})
+install(TARGETS action_server action_client goal_publisher_3s goal_publisher_5s goal_publisher_7s DESTINATION bin/${PROJECT_NAME})
 
 # Export package dependencies
 ament_export_dependencies(rclcpp rclcpp_action geometry_msgs action_tutorials_interfaces)
