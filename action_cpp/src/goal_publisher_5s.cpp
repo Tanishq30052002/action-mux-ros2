@@ -7,7 +7,7 @@ class GoalPublisher : public rclcpp::Node {
     publisher_ =
         this->create_publisher<geometry_msgs::msg::Pose>("/goal_pose", 10);
     timer_ = this->create_wall_timer(
-        std::chrono::seconds(7), std::bind(&GoalPublisher::publish_goal, this));
+        std::chrono::seconds(5), std::bind(&GoalPublisher::publish_goal, this));
   }
 
  private:
