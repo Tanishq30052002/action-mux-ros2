@@ -46,8 +46,7 @@ ament_target_dependencies(goal_publisher_5s rclcpp geometry_msgs)
 add_executable(goal_publisher_7s src/goal_publisher_7s.cpp)
 ament_target_dependencies(goal_publisher_7s rclcpp geometry_msgs)
 
-# Install executables
-install(TARGETS action_server action_client goal_publisher_3s goal_publisher_5s goal_publisher_7s DESTINATION bin/${PROJECT_NAME})
+install(TARGETS action_server action_client goal_publisher_3s goal_publisher_5s goal_publisher_7s DESTINATION lib/${PROJECT_NAME})
 
 # Export package dependencies
 ament_export_dependencies(rclcpp rclcpp_action geometry_msgs action_tutorials_interfaces)
