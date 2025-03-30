@@ -7,7 +7,7 @@ class GoalPublisher : public rclcpp::Node {
     publisher_ =
         this->create_publisher<geometry_msgs::msg::Pose>("/goal_pose", 10);
     timer_ = this->create_wall_timer(
-        std::chrono::seconds(2), std::bind(&GoalPublisher::publish_goal, this));
+        std::chrono::seconds(7), std::bind(&GoalPublisher::publish_goal, this));
   }
 
  private:
@@ -17,7 +17,7 @@ class GoalPublisher : public rclcpp::Node {
 
   void publish_goal() {
     auto message = geometry_msgs::msg::Pose();
-    
+
     // Example goal: Increasing x-position, fixed y and z
     message.position.x = count_ * 1.0;  // Increment x by 1 each time
     message.position.y = 0.0;

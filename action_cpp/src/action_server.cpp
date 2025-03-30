@@ -3,7 +3,7 @@
 
 #include "action_cpp/action/move_to_pose.hpp"
 #include "action_cpp/visibility_control.h"
-#include "geometry_msgs/msg/pose.hpp"
+#include "std_msgs/msg/bool.hpp"
 
 using namespace std::chrono_literals;
 
@@ -28,7 +28,7 @@ class MoveToPoseServer : public rclcpp::Node {
  private:
   rclcpp_action::Server<MoveToPose>::SharedPtr action_server_;
   std::shared_ptr<GoalHandle> active_goal_;
-  geometry_msgs::msg::Pose current_pose_;  // Simulated current position
+  std_msgs::msg::Bool goal_currently_active_;
 
   rclcpp_action::GoalResponse handle_goal(
       const rclcpp_action::GoalUUID &uuid,
@@ -36,10 +36,16 @@ class MoveToPoseServer : public rclcpp::Node {
     (void)uuid;
     RCLCPP_INFO(this->get_logger(), "Received new goal!");
 
-    if (active_goal_) {
+    if (active_goal_ && active_goal_->is_active()) {
       RCLCPP_WARN(this->get_logger(),
                   "New goal received, aborting the previous one!");
       active_goal_->abort(std::make_shared<MoveToPose::Result>());
+    }
+
+    // Only accept a new goal if `active_goal_` is reset
+    if (active_goal_) {
+      RCLCPP_WARN(this->get_logger(), "Ignoring duplicate goal!");
+      return rclcpp_action::GoalResponse::REJECT;
     }
 
     return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
@@ -58,23 +64,22 @@ class MoveToPoseServer : public rclcpp::Node {
 
   void execute(const std::shared_ptr<GoalHandle> goal_handle) {
     RCLCPP_INFO(this->get_logger(), "Executing goal...");
-    auto feedback = std::make_shared<MoveToPose::Feedback>();
 
-    rclcpp::Rate rate(1);
+    auto feedback = std::make_shared<MoveToPose::Feedback>();
+    rclcpp::Rate rate(1);  // 1Hz loop (one update per second)
+
     for (int i = 0; i < 5; ++i) {
       if (goal_handle->is_canceling()) {
         RCLCPP_WARN(this->get_logger(), "Goal aborted before completion.");
         goal_handle->canceled(std::make_shared<MoveToPose::Result>());
+        active_goal_.reset();  // **Reset active goal after canceling**
         return;
       }
 
-      // Simulate movement by updating the current position
-      feedback->current_pose.position.x += 0.1;
-      feedback->current_pose.position.y += 0.1;
+      feedback->current_pose = true;
       goal_handle->publish_feedback(feedback);
-      RCLCPP_INFO(this->get_logger(), "Feedback: x=%.2f, y=%.2f",
-                  feedback->current_pose.position.x,
-                  feedback->current_pose.position.y);
+      RCLCPP_INFO(this->get_logger(), "Processing goal... %d sec elapsed",
+                  i + 1);
 
       rate.sleep();
     }
@@ -83,8 +88,12 @@ class MoveToPoseServer : public rclcpp::Node {
       auto result = std::make_shared<MoveToPose::Result>();
       result->success = true;
       goal_handle->succeed(result);
-      RCLCPP_INFO(this->get_logger(), "Goal succeeded!");
+      RCLCPP_INFO(this->get_logger(),
+                  "Goal processed successfully after 5 seconds!");
     }
+
+    active_goal_.reset();  // **Ensure active goal is reset after execution**
+    RCLCPP_INFO(this->get_logger(), "Waiting for the next goal...");
   }
 };
 
