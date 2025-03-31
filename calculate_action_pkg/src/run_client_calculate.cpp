@@ -57,10 +57,10 @@ private:
     goal.value_1 = value(mt);
     goal.value_2 = value(mt);
 
-    std::uniform_int_distribution<int> idx(0, 3);
     std::vector<std::string> operations = {"add", "subtract", "multiply",
                                            "divide"};
-    goal.operation = operations[idx(mt)];
+    std::uniform_int_distribution<int> idx_operations(0, operations.size() - 1);
+    goal.operation = operations[idx_operations(mt)];
     RCLCPP_INFO(this->get_logger(), "[create_goal_msg] Sending goal: %f %s %f",
                 goal.value_1, goal.operation.c_str(), goal.value_2);
   }
