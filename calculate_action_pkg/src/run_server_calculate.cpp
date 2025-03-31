@@ -85,7 +85,6 @@ private:
           RCLCPP_ERROR(this->get_logger(), "[execute] Invalid Operation");
           result->result = 0;
         }
-        RCLCPP_INFO(this->get_logger(), "[execute] Result: %f", result->result);
         goal_handle->succeed(result);
         RCLCPP_INFO(this->get_logger(), "[execute] Goal Process Successfully");
       }
