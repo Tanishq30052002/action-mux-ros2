@@ -81,13 +81,7 @@ class GenericSubscriber : public rclcpp::Node {
 
 int main(int argc, char *argv[]) {
   rclcpp::init(argc, argv);
-
-  if (argc < 2) {
-    std::cerr << "Usage: " << argv[0] << " <topic_name>\n";
-    return 1;
-  }
-
-  auto node = std::make_shared<GenericSubscriber>(argv[1]);
+  auto node = std::make_shared<GenericSubscriber>("/goal_pose");
   rclcpp::spin(node);
   rclcpp::shutdown();
   return 0;
