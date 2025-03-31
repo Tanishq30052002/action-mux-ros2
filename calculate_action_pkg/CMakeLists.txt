@@ -12,8 +12,28 @@ find_package(ament_cmake REQUIRED)
 # find_package(<dependency> REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_action REQUIRED)
+find_package(rclcpp_components REQUIRED)
+find_package(geometry_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME} "action/Calculate.action" DEPENDENCIES std_msgs)
+
+include_directories(include )
+add_executable(run_client_calculate src/run_client_calculate.cpp)
+ament_target_dependencies(run_client_calculate rclcpp rclcpp_action geometry_msgs)
+rosidl_get_typesupport_target(run_client_calculate ${PROJECT_NAME} rosidl_typesupport_cpp)
+target_link_libraries(run_client_calculate ${PROJECT_NAME}__rosidl_typesupport_cpp)
+
+add_executable(run_server_calculate src/run_server_calculate.cpp)
+ament_target_dependencies(run_server_calculate rclcpp rclcpp_action geometry_msgs)
+rosidl_get_typesupport_target(run_server_calculate ${PROJECT_NAME} rosidl_typesupport_cpp)
+target_link_libraries(run_server_calculate ${PROJECT_NAME}__rosidl_typesupport_cpp)
+
+install(TARGETS run_client_calculate run_server_calculate DESTINATION lib/${PROJECT_NAME})
+
+# Export package dependencies
+ament_export_dependencies(rclcpp rclcpp_action geometry_msgs)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
