@@ -13,7 +13,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(std_msgs REQUIRED)
 
-rosidl_generate_interfaces(${PROJECT_NAME} "action/Calculate.action" DEPENDENCIES std_msgs)
+rosidl_generate_interfaces(${PROJECT_NAME} "action/Calculator.action" DEPENDENCIES std_msgs)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

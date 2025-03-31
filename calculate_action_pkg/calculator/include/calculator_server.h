@@ -2,19 +2,19 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
 
-#include "calculator_msgs/action/calculate.hpp"
+#include "calculator_msgs/action/calculator.hpp"
 
-using Calculate = calculator_msgs::action::Calculate;
-using ServerGoalHandle = rclcpp_action::ServerGoalHandle<Calculate>;
+using Calculator = calculator_msgs::action::Calculator;
+using ServerGoalHandle = rclcpp_action::ServerGoalHandle<Calculator>;
 using namespace std::chrono_literals;
 using namespace std::placeholders;
 
-class CalculateServer : public rclcpp::Node {
+class CalculatorServer : public rclcpp::Node {
 public:
-  CalculateServer();
+  CalculatorServer();
 
 private:
-  rclcpp_action::Server<Calculate>::SharedPtr server_;
+  rclcpp_action::Server<Calculator>::SharedPtr server_;
   std::mutex goal_mutex_;
 
   /**
@@ -26,7 +26,7 @@ private:
    */
   rclcpp_action::GoalResponse
   handle_goal(const rclcpp_action::GoalUUID &uuid,
-              std::shared_ptr<const Calculate::Goal> goal);
+              std::shared_ptr<const Calculator::Goal> goal);
 
   /**
    * @brief Handle cancel requests

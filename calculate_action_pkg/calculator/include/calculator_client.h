@@ -7,24 +7,24 @@
 #include <rclcpp_action/rclcpp_action.hpp>
 #include <std_msgs/msg/bool.hpp>
 
-#include "calculator_msgs/action/calculate.hpp"
+#include "calculator_msgs/action/calculator.hpp"
 
-using Calculate = calculator_msgs::action::Calculate;
-using ClientGoalHandle = rclcpp_action::ClientGoalHandle<Calculate>;
+using Calculator = calculator_msgs::action::Calculator;
+using ClientGoalHandle = rclcpp_action::ClientGoalHandle<Calculator>;
 using namespace std::chrono_literals;
 using namespace std::placeholders;
 
-class CalculateClient : public rclcpp::Node {
+class CalculatorClient : public rclcpp::Node {
 public:
   /**
-   * @brief Construct a new Calculate Client object
+   * @brief Construct a new Calculator Client object
    *
    */
-  CalculateClient();
+  CalculatorClient();
 
 private:
   ClientGoalHandle::SharedPtr client_goal_handle_;
-  rclcpp_action::Client<Calculate>::SharedPtr client_;
+  rclcpp_action::Client<Calculator>::SharedPtr client_;
   rclcpp::Subscription<geometry_msgs::msg::Pose>::SharedPtr pose_subscriber_;
 
   /**
@@ -39,7 +39,7 @@ private:
    *
    * @param goal
    */
-  void create_goal_action(Calculate::Goal &goal);
+  void create_goal_action(Calculator::Goal &goal);
 
   /**
    * @brief
@@ -60,7 +60,7 @@ private:
    * @param feedback
    */
   void feedback_callback(ClientGoalHandle::SharedPtr,
-                         Calculate::Feedback::ConstSharedPtr feedback);
+                         Calculator::Feedback::ConstSharedPtr feedback);
 
   /**
    * @brief

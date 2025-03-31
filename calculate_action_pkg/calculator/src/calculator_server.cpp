@@ -1,23 +1,24 @@
 #include <calculator_server.h>
 
-CalculateServer::CalculateServer() : Node("calculate_action_server") {
-  server_ = rclcpp_action::create_server<Calculate>(
-      this, "calculate", std::bind(&CalculateServer::handle_goal, this, _1, _2),
-      std::bind(&CalculateServer::handle_cancel, this, _1),
-      std::bind(&CalculateServer::handle_accepted, this, _1));
+CalculatorServer::CalculatorServer() : Node("calculator_action_server") {
+  server_ = rclcpp_action::create_server<Calculator>(
+      this, "calculator",
+      std::bind(&CalculatorServer::handle_goal, this, _1, _2),
+      std::bind(&CalculatorServer::handle_cancel, this, _1),
+      std::bind(&CalculatorServer::handle_accepted, this, _1));
 
   RCLCPP_INFO(this->get_logger(), "[constructor] Server is Ready !!! ");
 }
 
 rclcpp_action::GoalResponse
-CalculateServer::handle_goal(const rclcpp_action::GoalUUID &uuid,
-                             std::shared_ptr<const Calculate::Goal> goal) {
+CalculatorServer::handle_goal(const rclcpp_action::GoalUUID &uuid,
+                              std::shared_ptr<const Calculator::Goal> goal) {
   (void)uuid;
   RCLCPP_INFO(this->get_logger(), "[handle_goal] Received new goal!");
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 
-rclcpp_action::CancelResponse CalculateServer::handle_cancel(
+rclcpp_action::CancelResponse CalculatorServer::handle_cancel(
     const std::shared_ptr<ServerGoalHandle> goal_handle) {
   std::lock_guard<std::mutex> lock(goal_mutex_);
 
@@ -28,15 +29,15 @@ rclcpp_action::CancelResponse CalculateServer::handle_cancel(
   return rclcpp_action::CancelResponse::REJECT;
 }
 
-void CalculateServer::handle_accepted(
+void CalculatorServer::handle_accepted(
     const std::shared_ptr<ServerGoalHandle> goal_handle) {
-  std::thread(&CalculateServer::execute, this, goal_handle).detach();
+  std::thread(&CalculatorServer::execute, this, goal_handle).detach();
 }
 
-void CalculateServer::execute(
+void CalculatorServer::execute(
     const std::shared_ptr<ServerGoalHandle> goal_handle) {
-  auto result = std::make_shared<Calculate::Result>();
-  auto feedback = std::make_shared<Calculate::Feedback>();
+  auto result = std::make_shared<Calculator::Result>();
+  auto feedback = std::make_shared<Calculator::Feedback>();
 
   int frequency = 100; // Hz
   rclcpp::Rate rate(frequency);

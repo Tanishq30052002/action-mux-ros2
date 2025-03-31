@@ -1,16 +1,16 @@
 #include "calculator_client.h"
 
-CalculateClient::CalculateClient() : Node("calculate_action_client") {
-  client_ = rclcpp_action::create_client<Calculate>(this, "calculate");
+CalculatorClient::CalculatorClient() : Node("calculator_action_client") {
+  client_ = rclcpp_action::create_client<Calculator>(this, "calculator");
 
   pose_subscriber_ = this->create_subscription<geometry_msgs::msg::Pose>(
       "/goal_pose", 10,
-      std::bind(&CalculateClient::goal_callback, this, std::placeholders::_1));
+      std::bind(&CalculatorClient::goal_callback, this, std::placeholders::_1));
 
   RCLCPP_INFO(this->get_logger(), "[constructor] Client is Ready !!!");
 }
 
-void CalculateClient::goal_callback(
+void CalculatorClient::goal_callback(
     const geometry_msgs::msg::Pose::SharedPtr msg) {
 
   if (!client_->wait_for_action_server(5s)) {
@@ -31,7 +31,7 @@ void CalculateClient::goal_callback(
   send_new_goal_to_server();
 }
 
-void CalculateClient::create_goal_action(Calculate::Goal &goal) {
+void CalculatorClient::create_goal_action(Calculator::Goal &goal) {
   std::random_device rd;
   std::mt19937 mt(rd());
 
@@ -47,17 +47,17 @@ void CalculateClient::create_goal_action(Calculate::Goal &goal) {
               goal.value_1, goal.operation.c_str(), goal.value_2);
 }
 
-void CalculateClient::send_new_goal_to_server() {
-  auto goal = Calculate::Goal();
+void CalculatorClient::send_new_goal_to_server() {
+  auto goal = Calculator::Goal();
   create_goal_action(goal);
 
-  auto send_goal_options = rclcpp_action::Client<Calculate>::SendGoalOptions();
+  auto send_goal_options = rclcpp_action::Client<Calculator>::SendGoalOptions();
   send_goal_options.goal_response_callback =
-      std::bind(&CalculateClient::goal_response_callback, this, _1);
+      std::bind(&CalculatorClient::goal_response_callback, this, _1);
   send_goal_options.feedback_callback =
-      std::bind(&CalculateClient::feedback_callback, this, _1, _2);
+      std::bind(&CalculatorClient::feedback_callback, this, _1, _2);
   send_goal_options.result_callback =
-      std::bind(&CalculateClient::result_callback, this, _1);
+      std::bind(&CalculatorClient::result_callback, this, _1);
 
   RCLCPP_INFO(this->get_logger(), "[send_new_goal_to_server] Sending new goal");
   auto future_goal_handle = client_->async_send_goal(goal, send_goal_options);
@@ -71,7 +71,7 @@ void CalculateClient::send_new_goal_to_server() {
   }).detach();
 }
 
-void CalculateClient::goal_response_callback(
+void CalculatorClient::goal_response_callback(
     const ClientGoalHandle::SharedPtr &goal_handle) {
   if (!goal_handle) {
     RCLCPP_ERROR(this->get_logger(),
@@ -81,15 +81,16 @@ void CalculateClient::goal_response_callback(
   }
 }
 
-void CalculateClient::feedback_callback(
-    ClientGoalHandle::SharedPtr, Calculate::Feedback::ConstSharedPtr feedback) {
+void CalculatorClient::feedback_callback(
+    ClientGoalHandle::SharedPtr,
+    Calculator::Feedback::ConstSharedPtr feedback) {
   float processing_time_left = feedback->time_remaining;
   RCLCPP_DEBUG(this->get_logger(),
                "[feedback_callback] Time left to process: %f",
                processing_time_left);
 }
 
-void CalculateClient::result_callback(
+void CalculatorClient::result_callback(
     const ClientGoalHandle::WrappedResult &result) {
   if (result.code == rclcpp_action::ResultCode::SUCCEEDED) {
     RCLCPP_INFO(this->get_logger(),
