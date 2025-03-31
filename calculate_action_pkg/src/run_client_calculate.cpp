@@ -61,7 +61,7 @@ private:
                                            "divide"};
     std::uniform_int_distribution<int> idx_operations(0, operations.size() - 1);
     goal.operation = operations[idx_operations(mt)];
-    RCLCPP_INFO(this->get_logger(), "[create_goal_msg] Sending goal: %f %s %f",
+    RCLCPP_INFO(this->get_logger(), "[create_goal_msg] Goal: %f %s %f",
                 goal.value_1, goal.operation.c_str(), goal.value_2);
   }
 
