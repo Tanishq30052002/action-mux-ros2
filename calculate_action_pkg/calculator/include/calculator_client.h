@@ -25,8 +25,8 @@ public:
 private:
   ClientGoalHandle::SharedPtr client_goal_handle_;
   rclcpp_action::Client<Calculator>::SharedPtr client_;
-  std::string topic_name_ = "/goal_pose";
-  std::string detected_type_;
+  std::string topic_name_ = "/generic_topic";
+  std::string detected_topic_type_;
   rclcpp::GenericSubscription::SharedPtr generic_subscriber_;
   rclcpp::TimerBase::SharedPtr type_check_timer_;
 
@@ -79,9 +79,9 @@ private:
 
       RCLCPP_INFO(this->get_logger(), "Topic '%s' detected!",
                   topic_name_.c_str());
-      detected_type_ = it->second[0];
+      detected_topic_type_ = it->second[0];
       RCLCPP_INFO(this->get_logger(), "Detected topic type: %s",
-                  detected_type_.c_str());
+                  detected_topic_type_.c_str());
 
       create_subscription();
       break; // Exit loop once subscription is created
@@ -89,13 +89,13 @@ private:
   }
 
   void create_subscription() {
-    if (!detected_type_.empty()) {
+    if (!detected_topic_type_.empty()) {
       generic_subscriber_ = this->create_generic_subscription(
-          topic_name_, detected_type_, rclcpp::QoS(10),
+          topic_name_, detected_topic_type_, rclcpp::QoS(10),
           std::bind(&CalculatorClient::generic_subscriber_callback, this, _1));
 
       RCLCPP_INFO(this->get_logger(), "Subscribed to %s (Type: %s)",
-                  topic_name_.c_str(), detected_type_.c_str());
+                  topic_name_.c_str(), detected_topic_type_.c_str());
     }
   }
 
@@ -108,9 +108,9 @@ private:
           "No active publishers on topic '%s'. Resetting subscription...",
           topic_name_.c_str());
 
-      generic_subscriber_.reset(); // Unsubscribe
-      detected_type_.clear();      // Reset detected type
-      wait_for_topic();            // Wait for topic again
+      generic_subscriber_.reset();  // Unsubscribe
+      detected_topic_type_.clear(); // Reset detected type
+      wait_for_topic();             // Wait for topic again
     }
   }
 
