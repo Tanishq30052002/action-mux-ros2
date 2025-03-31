@@ -75,11 +75,11 @@ private:
         auto goal = goal_handle->get_goal();
         if (goal->operation == "add") {
           result->result = goal->value_1 + goal->value_2;
-        } else if (goal->operation == "subtraction") {
+        } else if (goal->operation == "subtract") {
           result->result = goal->value_1 - goal->value_2;
         } else if (goal->operation == "multiply") {
           result->result = goal->value_1 * goal->value_2;
-        } else if (goal->operation == "division") {
+        } else if (goal->operation == "divide") {
           result->result = goal->value_1 / goal->value_2;
         } else {
           RCLCPP_ERROR(this->get_logger(), "[execute] Invalid Operation");

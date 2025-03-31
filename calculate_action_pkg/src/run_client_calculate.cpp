@@ -59,8 +59,10 @@ private:
 
     std::uniform_int_distribution<int> idx(0, 3);
     std::vector<std::string> operations = {"add", "subtract", "multiply",
-                                           "division"};
+                                           "divide"};
     goal.operation = operations[idx(mt)];
+    RCLCPP_INFO(this->get_logger(), "[create_goal_msg] Sending goal: %f %s %f",
+                goal.value_1, goal.operation.c_str(), goal.value_2);
   }
 
   void send_new_goal_to_server() {
@@ -110,10 +112,12 @@ private:
 
   void result_callback(const ClientGoalHandle::WrappedResult &result) {
     if (result.code == rclcpp_action::ResultCode::SUCCEEDED) {
-      RCLCPP_INFO(this->get_logger(), "[result_callback] Goal succeeded!");
+      RCLCPP_INFO(this->get_logger(),
+                  "[result_callback] Goal Succeeded, Result: %f",
+                  result.result.get()->result);
       client_goal_handle_ = nullptr;
     } else if (result.code == rclcpp_action::ResultCode::CANCELED) {
-      RCLCPP_WARN(this->get_logger(), "[result_callback] Goal was canceled.");
+      RCLCPP_WARN(this->get_logger(), "[result_callback] Goal Cancelled.");
     } else {
       RCLCPP_ERROR(this->get_logger(),
                    "[result_callback] Goal failed with code: %d",
