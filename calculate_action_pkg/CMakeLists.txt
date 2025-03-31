@@ -16,7 +16,6 @@ find_package(calculator_msgs REQUIRED)
 
 add_subdirectory(calculator)
 
-include_directories(include)
 add_executable(run_client_calculate src/run_client_calculate.cpp)
 target_link_libraries(run_client_calculate PRIVATE calculator_client)
 add_executable(run_server_calculate src/run_server_calculate.cpp)

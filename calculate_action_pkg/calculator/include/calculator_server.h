@@ -3,6 +3,7 @@
 #include <rclcpp_action/rclcpp_action.hpp>
 
 #include "calculator_msgs/action/calculator.hpp"
+#include "visibility_control.h"
 
 using Calculator = calculator_msgs::action::Calculator;
 using ServerGoalHandle = rclcpp_action::ServerGoalHandle<Calculator>;
