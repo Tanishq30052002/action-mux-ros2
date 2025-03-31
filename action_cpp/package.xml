@@ -15,6 +15,7 @@
   <depend>rclcpp_action</depend>
   <depend>rclcpp_components</depend>
   <depend>geometry_msgs</depend>
+  <depend>rosidl_runtime_cpp</depend>
   <member_of_group>rosidl_interface_packages</member_of_group>
   <depend>action_msgs</depend>
 

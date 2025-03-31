@@ -13,6 +13,7 @@ find_package(rclcpp_components REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(action_tutorials_interfaces REQUIRED)
 find_package(rosidl_default_generators REQUIRED)  # Ensure action generation
+find_package(rosidl_runtime_cpp REQUIRED)
 
 # Generate ROS 2 action interfaces
 rosidl_generate_interfaces(${PROJECT_NAME} "action/MoveToPose.action" DEPENDENCIES std_msgs)
