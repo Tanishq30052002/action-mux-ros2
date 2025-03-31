@@ -90,6 +90,13 @@ private:
    */
   void
   generic_subscriber_callback(std::shared_ptr<rclcpp::SerializedMessage> msg);
+
+  /**
+   * @brief
+   *
+   * @param msg
+   */
+  void print_topic_msg(const std::shared_ptr<rclcpp::SerializedMessage> &msg);
 };
 
 #endif // ACTION_CLIENT_H

@@ -16,6 +16,8 @@ void CalculatorClient::generic_subscriber_callback(
     std::shared_ptr<rclcpp::SerializedMessage> msg) {
   RCLCPP_INFO(this->get_logger(),
               "[generic_subscriber_callback] Received a serialized message!");
+  print_topic_msg(msg);
+
   if (!client_->wait_for_action_server(5s)) {
     RCLCPP_ERROR(this->get_logger(),
                  "[generic_subscriber_callback] Action Server not available!");
@@ -156,3 +158,6 @@ void CalculatorClient::check_topic_status() {
     wait_for_topic();             // Wait for topic again
   }
 }
+
+void CalculatorClient::print_topic_msg(
+    const std::shared_ptr<rclcpp::SerializedMessage> &msg) {}
