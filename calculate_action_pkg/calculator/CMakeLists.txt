@@ -14,9 +14,9 @@ message(STATUS "${calculate_action_pkg_INCLUDE_DIRS}")
 
 
 add_library(calculator_client STATIC src/calculator_client.cpp)
-ament_target_dependencies(calculator_client rclcpp rclcpp_action geometry_msgs)
+ament_target_dependencies(calculator_client rclcpp rclcpp_action geometry_msgs calculator_msgs)
 target_include_directories(calculator_client PUBLIC ${PROJECT_SOURCE_DIR}/include ${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_cpp)
 
 add_library(calculator_server STATIC src/calculator_server.cpp)
-ament_target_dependencies(calculator_server rclcpp rclcpp_action geometry_msgs)
+ament_target_dependencies(calculator_server rclcpp rclcpp_action geometry_msgs calculator_msgs)
 target_include_directories(calculator_server PUBLIC ${PROJECT_SOURCE_DIR}/include ${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_cpp)

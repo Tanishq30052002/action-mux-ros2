@@ -2,9 +2,9 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
 
-#include "calculate_action_pkg/action/calculate.hpp"
+#include "calculator_msgs/action/calculate.hpp"
 
-using Calculate = calculate_action_pkg::action::Calculate;
+using Calculate = calculator_msgs::action::Calculate;
 using ServerGoalHandle = rclcpp_action::ServerGoalHandle<Calculate>;
 using namespace std::chrono_literals;
 using namespace std::placeholders;
