@@ -17,18 +17,18 @@ find_package(rclcpp_action REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(geometry_msgs REQUIRED)
 
+include_directories(include)
 rosidl_generate_interfaces(${PROJECT_NAME} "action/Calculate.action" DEPENDENCIES std_msgs)
 
-include_directories(include )
-add_executable(run_client_calculate src/run_client_calculate.cpp)
-ament_target_dependencies(run_client_calculate rclcpp rclcpp_action geometry_msgs)
-rosidl_get_typesupport_target(run_client_calculate ${PROJECT_NAME} rosidl_typesupport_cpp)
-target_link_libraries(run_client_calculate ${PROJECT_NAME}__rosidl_typesupport_cpp)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_cpp)
+ament_export_dependencies(rosidl_default_runtime)
 
+add_subdirectory(calculator)
+
+add_executable(run_client_calculate src/run_client_calculate.cpp)
+target_link_libraries(run_client_calculate PRIVATE calculator_client ${PROJECT_NAME}__rosidl_typesupport_cpp)
 add_executable(run_server_calculate src/run_server_calculate.cpp)
-ament_target_dependencies(run_server_calculate rclcpp rclcpp_action geometry_msgs)
-rosidl_get_typesupport_target(run_server_calculate ${PROJECT_NAME} rosidl_typesupport_cpp)
-target_link_libraries(run_server_calculate ${PROJECT_NAME}__rosidl_typesupport_cpp)
+target_link_libraries(run_server_calculate PRIVATE calculator_server ${PROJECT_NAME}__rosidl_typesupport_cpp)
 
 install(TARGETS run_client_calculate run_server_calculate DESTINATION lib/${PROJECT_NAME})
 
