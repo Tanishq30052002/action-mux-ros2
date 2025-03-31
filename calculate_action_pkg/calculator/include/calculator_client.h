@@ -1,9 +1,9 @@
 #ifndef ACTION_CLIENT_H
 #define ACTION_CLIENT_H
 
-#include <geometry_msgs/msg/pose.hpp>
 #include <random>
 #include <rclcpp/rclcpp.hpp>
+#include <rclcpp/serialization.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
 #include <std_msgs/msg/bool.hpp>
 
@@ -23,16 +23,12 @@ public:
   CalculatorClient();
 
 private:
+  std::string topic_name_ = "/generic_topic";
+  std::string detected_topic_type_;
+  rclcpp::GenericSubscription::SharedPtr generic_subscriber_;
+  rclcpp::TimerBase::SharedPtr type_check_timer_;
   ClientGoalHandle::SharedPtr client_goal_handle_;
   rclcpp_action::Client<Calculator>::SharedPtr client_;
-  rclcpp::Subscription<geometry_msgs::msg::Pose>::SharedPtr pose_subscriber_;
-
-  /**
-   * @brief
-   *
-   * @param msg
-   */
-  void goal_callback(const geometry_msgs::msg::Pose::SharedPtr msg);
 
   /**
    * @brief Create a goal action object
@@ -68,6 +64,39 @@ private:
    * @param result
    */
   void result_callback(const ClientGoalHandle::WrappedResult &result);
+
+  /**
+   * @brief
+   *
+   */
+  void wait_for_topic();
+
+  /**
+   * @brief Create a subscription object
+   *
+   */
+  void create_subscription();
+
+  /**
+   * @brief
+   *
+   */
+  void check_topic_status();
+
+  /**
+   * @brief
+   *
+   * @param msg
+   */
+  void
+  generic_subscriber_callback(std::shared_ptr<rclcpp::SerializedMessage> msg);
+
+  /**
+   * @brief
+   *
+   * @param msg
+   */
+  void print_topic_msg(const std::shared_ptr<rclcpp::SerializedMessage> &msg);
 };
 
 #endif // ACTION_CLIENT_H
