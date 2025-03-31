@@ -25,8 +25,8 @@ public:
   }
 
 private:
+  ClientGoalHandle::SharedPtr client_goal_handle_;
   rclcpp_action::Client<Calculate>::SharedPtr client_;
-  rclcpp_action::ClientGoalHandle<Calculate>::SharedPtr client_goal_handle_;
   rclcpp::Subscription<geometry_msgs::msg::Pose>::SharedPtr pose_subscriber_;
 
   void goal_callback(const geometry_msgs::msg::Pose::SharedPtr msg) {
