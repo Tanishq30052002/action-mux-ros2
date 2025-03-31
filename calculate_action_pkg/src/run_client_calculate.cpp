@@ -101,9 +101,8 @@ private:
     }
   }
 
-  void
-  feedback_callback(ClientGoalHandle::SharedPtr,
-                    const std::shared_ptr<const Calculate::Feedback> feedback) {
+  void feedback_callback(ClientGoalHandle::SharedPtr,
+                         Calculate::Feedback::ConstSharedPtr feedback) {
     float processing_time_left = feedback->time_remaining;
     RCLCPP_DEBUG(this->get_logger(),
                  "[feedback_callback] Time left to process: %f",
