@@ -3,9 +3,8 @@
 CalculatorClient::CalculatorClient() : Node("calculator_action_client") {
   client_ = rclcpp_action::create_client<Calculator>(this, "calculator");
 
-  pose_subscriber_ = this->create_subscription<geometry_msgs::msg::Pose>(
-      "/goal_pose", 10,
-      std::bind(&CalculatorClient::goal_callback, this, std::placeholders::_1));
+  this->create_subscription<geometry_msgs::msg::Pose>(
+      "/goal_pose", 10, std::bind(&CalculatorClient::goal_callback, this, _1));
 
   RCLCPP_INFO(this->get_logger(), "[constructor] Client is Ready !!!");
 }

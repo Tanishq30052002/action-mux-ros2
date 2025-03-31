@@ -25,7 +25,6 @@ public:
 private:
   ClientGoalHandle::SharedPtr client_goal_handle_;
   rclcpp_action::Client<Calculator>::SharedPtr client_;
-  rclcpp::Subscription<geometry_msgs::msg::Pose>::SharedPtr pose_subscriber_;
 
   /**
    * @brief
