@@ -108,3 +108,51 @@ void CalculatorClient::result_callback(
                  static_cast<int>(result.code));
   }
 }
+
+void CalculatorClient::wait_for_topic() {
+  while (rclcpp::ok()) {
+    auto topics = this->get_topic_names_and_types();
+    auto it = topics.find(topic_name_);
+
+    if (it == topics.end() || it->second.empty()) {
+      RCLCPP_WARN(this->get_logger(), "Topic '%s' not found. Waiting...",
+                  topic_name_.c_str());
+      rclcpp::sleep_for(std::chrono::milliseconds(500)); // Retry delay
+      continue;
+    }
+
+    RCLCPP_INFO(this->get_logger(), "Topic '%s' detected!",
+                topic_name_.c_str());
+    detected_topic_type_ = it->second[0];
+    RCLCPP_INFO(this->get_logger(), "Detected topic type: %s",
+                detected_topic_type_.c_str());
+
+    create_subscription();
+    break; // Exit loop once subscription is created
+  }
+}
+
+void CalculatorClient::create_subscription() {
+  if (!detected_topic_type_.empty()) {
+    generic_subscriber_ = this->create_generic_subscription(
+        topic_name_, detected_topic_type_, rclcpp::QoS(10),
+        std::bind(&CalculatorClient::generic_subscriber_callback, this, _1));
+
+    RCLCPP_INFO(this->get_logger(), "Subscribed to %s (Type: %s)",
+                topic_name_.c_str(), detected_topic_type_.c_str());
+  }
+}
+
+void CalculatorClient::check_topic_status() {
+  size_t num_publishers = this->count_publishers(topic_name_);
+
+  if (num_publishers == 0) {
+    RCLCPP_WARN(this->get_logger(),
+                "No active publishers on topic '%s'. Resetting subscription...",
+                topic_name_.c_str());
+
+    generic_subscriber_.reset();  // Unsubscribe
+    detected_topic_type_.clear(); // Reset detected type
+    wait_for_topic();             // Wait for topic again
+  }
+}
