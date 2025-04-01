@@ -19,3 +19,7 @@ target_include_directories(calculator_client PUBLIC ${PROJECT_SOURCE_DIR}/includ
 add_library(calculator_server STATIC src/calculator_server.cpp)
 ament_target_dependencies(calculator_server rclcpp rclcpp_action calculator_msgs)
 target_include_directories(calculator_server PUBLIC ${PROJECT_SOURCE_DIR}/include ${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_cpp)
+
+add_library(calculator_goal_publisher STATIC src/calculator_goal_publisher.cpp)
+ament_target_dependencies(calculator_goal_publisher rclcpp calculator_msgs)
+target_include_directories(calculator_goal_publisher PUBLIC ${PROJECT_SOURCE_DIR}/include ${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_cpp)
