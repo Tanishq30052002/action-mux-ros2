@@ -14,6 +14,12 @@ private:
    * @brief
    *
    */
+  void check_topic_status();
+
+  /**
+   * @brief
+   *
+   */
   void wait_for_topic();
 
   /**
@@ -25,15 +31,10 @@ private:
   /**
    * @brief
    *
-   */
-  void check_topic_status();
-
-  /**
-   * @brief
-   *
    * @param msg
    */
-  void on_message_received(std::shared_ptr<rclcpp::SerializedMessage> msg);
+  void
+  generic_subscriber_callback(std::shared_ptr<rclcpp::SerializedMessage> msg);
 
   std::string topic_name_ = "/generic_topic";
   std::string detected_type_;

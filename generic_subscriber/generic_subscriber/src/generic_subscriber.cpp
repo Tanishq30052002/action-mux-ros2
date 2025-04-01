@@ -1,13 +1,24 @@
 #include "generic_subscriber.h"
 
 GenericSubscriber::GenericSubscriber() : Node("generic_subscriber") {
-  // Start monitoring the topic
-  wait_for_topic();
-
   // Timer to check for active publishers and type changes
   type_check_timer_ = this->create_wall_timer(
       std::chrono::seconds(2),
       std::bind(&GenericSubscriber::check_topic_status, this));
+}
+
+void GenericSubscriber::check_topic_status() {
+  size_t num_publishers = this->count_publishers(topic_name_);
+
+  if (num_publishers == 0) {
+    RCLCPP_WARN(this->get_logger(),
+                "No active publishers on topic '%s'. Resetting subscription...",
+                topic_name_.c_str());
+
+    generic_subscriber_.reset(); // Unsubscribe
+    detected_type_.clear();      // Reset detected type
+    wait_for_topic();            // Wait for topic again
+  }
 }
 
 void GenericSubscriber::wait_for_topic() {
@@ -37,7 +48,7 @@ void GenericSubscriber::create_subscription() {
   if (!detected_type_.empty()) {
     generic_subscriber_ = this->create_generic_subscription(
         topic_name_, detected_type_, rclcpp::QoS(10),
-        std::bind(&GenericSubscriber::on_message_received, this,
+        std::bind(&GenericSubscriber::generic_subscriber_callback, this,
                   std::placeholders::_1));
 
     RCLCPP_INFO(this->get_logger(), "Subscribed to %s (Type: %s)",
@@ -45,21 +56,7 @@ void GenericSubscriber::create_subscription() {
   }
 }
 
-void GenericSubscriber::check_topic_status() {
-  size_t num_publishers = this->count_publishers(topic_name_);
-
-  if (num_publishers == 0) {
-    RCLCPP_WARN(this->get_logger(),
-                "No active publishers on topic '%s'. Resetting subscription...",
-                topic_name_.c_str());
-
-    generic_subscriber_.reset(); // Unsubscribe
-    detected_type_.clear();      // Reset detected type
-    wait_for_topic();            // Wait for topic again
-  }
-}
-
-void GenericSubscriber::on_message_received(
+void GenericSubscriber::generic_subscriber_callback(
     std::shared_ptr<rclcpp::SerializedMessage> msg) {
   RCLCPP_INFO(this->get_logger(),
               "[generic_subscription] Received a serialized message!");
