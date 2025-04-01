@@ -1,5 +1,5 @@
-#ifndef ACTION_CLIENT_H
-#define ACTION_CLIENT_H
+#ifndef CALCULATOR_CLIENT_H
+#define CALCULATOR_CLIENT_H
 
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
@@ -65,4 +65,4 @@ private:
   void result_callback(const ClientGoalHandle::WrappedResult &result);
 };
 
-#endif // ACTION_CLIENT_H
+#endif // CALCULATOR_CLIENT_H

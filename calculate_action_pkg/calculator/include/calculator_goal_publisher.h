@@ -1,3 +1,6 @@
+#ifndef CALCULATOR_GOAL_PUBLISHER_H
+#define CALCULATOR_GOAL_PUBLISHER_H
+
 #include <chrono>
 #include <functional>
 #include <memory>
@@ -28,3 +31,5 @@ private:
   rclcpp::TimerBase::SharedPtr timer_;
   unsigned int time_interval_s_ = 1;
 };
+
+#endif // CALCULATOR_GOAL_PUBLISHER_H

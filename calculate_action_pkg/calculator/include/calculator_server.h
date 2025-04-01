@@ -1,3 +1,6 @@
+#ifndef CALCULATOR_SERVER_H
+#define CALCULATOR_SERVER_H
+
 #include <mutex>
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
@@ -52,3 +55,5 @@ private:
    */
   void execute(const std::shared_ptr<ServerGoalHandle> goal_handle);
 };
+
+#endif // CALCULATOR_SERVER_H
