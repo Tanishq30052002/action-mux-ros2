@@ -3,10 +3,10 @@
 CalculatorClient::CalculatorClient() : Node("calculator_action_client") {
   client_ = rclcpp_action::create_client<Calculator>(this, "calculator");
 
-  this->create_subscription<calculator_msgs::msg::CalculatorGoal>(
-      "/calculator_goal", 10,
-      std::bind(&CalculatorClient::calculator_goal_callback, this,
-                std::placeholders::_1));
+  calculator_goal_subscriber_ =
+      this->create_subscription<calculator_msgs::msg::CalculatorGoal>(
+          "/calculator_goal", 10,
+          std::bind(&CalculatorClient::calculator_goal_callback, this, _1));
 
   RCLCPP_INFO(this->get_logger(), "[CalculatorClient] Client is Ready !!!");
 }
