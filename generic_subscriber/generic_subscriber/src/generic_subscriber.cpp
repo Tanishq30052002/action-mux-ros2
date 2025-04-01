@@ -1,6 +1,8 @@
 #include "generic_subscriber.h"
 
 GenericSubscriber::GenericSubscriber() : Node("generic_subscriber") {
+  wait_for_topic();
+
   // Timer to check for active publishers and type changes
   type_check_timer_ = this->create_wall_timer(
       std::chrono::seconds(2),
@@ -8,17 +10,16 @@ GenericSubscriber::GenericSubscriber() : Node("generic_subscriber") {
 }
 
 void GenericSubscriber::check_topic_status() {
-  size_t num_publishers = this->count_publishers(topic_name_);
+  if (this->count_publishers(topic_name_))
+    return;
+  RCLCPP_WARN(this->get_logger(),
+              "No active publishers on topic '%s'. Resetting subscription...",
+              topic_name_.c_str());
 
-  if (num_publishers == 0) {
-    RCLCPP_WARN(this->get_logger(),
-                "No active publishers on topic '%s'. Resetting subscription...",
-                topic_name_.c_str());
-
-    generic_subscriber_.reset(); // Unsubscribe
-    detected_type_.clear();      // Reset detected type
-    wait_for_topic();            // Wait for topic again
-  }
+  generic_subscriber_.reset(); // Unsubscribe
+  detected_type_.clear();      // Reset detected type
+  wait_for_topic();            // Wait for topic again
+  return;
 }
 
 void GenericSubscriber::wait_for_topic() {
