@@ -7,7 +7,7 @@ CalculatorServer::CalculatorServer() : Node("calculator_action_server") {
       std::bind(&CalculatorServer::handle_cancel, this, _1),
       std::bind(&CalculatorServer::handle_accepted, this, _1));
 
-  RCLCPP_INFO(this->get_logger(), "[constructor] Server is Ready !!! ");
+  RCLCPP_INFO(this->get_logger(), "[CalculatorServer] Server is Ready !!! ");
 }
 
 rclcpp_action::GoalResponse
