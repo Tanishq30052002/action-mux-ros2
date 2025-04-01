@@ -7,7 +7,7 @@ CalculatorServer::CalculatorServer() : Node("calculator_action_server") {
       std::bind(&CalculatorServer::handle_cancel, this, _1),
       std::bind(&CalculatorServer::handle_accepted, this, _1));
 
-  RCLCPP_INFO(this->get_logger(), "[constructor] Server is Ready !!! ");
+  RCLCPP_INFO(this->get_logger(), "[CalculatorServer] Server is Ready !!! ");
 }
 
 rclcpp_action::GoalResponse
@@ -55,15 +55,15 @@ void CalculatorServer::execute(
   {
     std::lock_guard<std::mutex> lock(goal_mutex_);
     if (rclcpp::ok() && goal_handle->is_active()) {
-      auto goal = goal_handle->get_goal();
-      if (goal->operation == "add") {
-        result->result = goal->value_1 + goal->value_2;
-      } else if (goal->operation == "subtract") {
-        result->result = goal->value_1 - goal->value_2;
-      } else if (goal->operation == "multiply") {
-        result->result = goal->value_1 * goal->value_2;
-      } else if (goal->operation == "divide") {
-        result->result = goal->value_1 / goal->value_2;
+      auto goal = goal_handle->get_goal()->goal;
+      if (goal.operation == "add") {
+        result->result = goal.value_1 + goal.value_2;
+      } else if (goal.operation == "subtract") {
+        result->result = goal.value_1 - goal.value_2;
+      } else if (goal.operation == "multiply") {
+        result->result = goal.value_1 * goal.value_2;
+      } else if (goal.operation == "divide") {
+        result->result = goal.value_1 / goal.value_2;
       } else {
         RCLCPP_ERROR(this->get_logger(), "[execute] Invalid Operation");
         result->result = 0;
