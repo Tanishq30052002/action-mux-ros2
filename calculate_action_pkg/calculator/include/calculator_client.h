@@ -1,13 +1,13 @@
 #ifndef ACTION_CLIENT_H
 #define ACTION_CLIENT_H
 
-#include <geometry_msgs/msg/pose.hpp>
 #include <random>
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
 #include <std_msgs/msg/bool.hpp>
 
 #include "calculator_msgs/action/calculator.hpp"
+#include "calculator_msgs/msg/calculator_goal.hpp"
 
 using Calculator = calculator_msgs::action::Calculator;
 using ClientGoalHandle = rclcpp_action::ClientGoalHandle<Calculator>;
@@ -25,27 +25,21 @@ public:
 private:
   ClientGoalHandle::SharedPtr client_goal_handle_;
   rclcpp_action::Client<Calculator>::SharedPtr client_;
-  rclcpp::Subscription<geometry_msgs::msg::Pose>::SharedPtr pose_subscriber_;
 
   /**
    * @brief
    *
    * @param msg
    */
-  void goal_callback(const geometry_msgs::msg::Pose::SharedPtr msg);
-
-  /**
-   * @brief Create a goal action object
-   *
-   * @param goal
-   */
-  void create_goal_action(Calculator::Goal &goal);
+  void calculator_goal_callback(
+      const calculator_msgs::msg::CalculatorGoal::SharedPtr msg);
 
   /**
    * @brief
    *
    */
-  void send_new_goal_to_server();
+  void send_new_goal_to_server(
+      const calculator_msgs::msg::CalculatorGoal::SharedPtr msg);
 
   /**
    * @brief

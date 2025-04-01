@@ -10,9 +10,7 @@ find_package(std_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(rclcpp_components REQUIRED)
-find_package(geometry_msgs REQUIRED)
 find_package(calculator_msgs REQUIRED)
-
 
 add_subdirectory(calculator)
 
@@ -24,7 +22,7 @@ target_link_libraries(run_server_calculate PRIVATE calculator_server)
 install(TARGETS run_client_calculate run_server_calculate DESTINATION lib/${PROJECT_NAME})
 
 # Export package dependencies
-ament_export_dependencies(rclcpp rclcpp_action geometry_msgs)
+ament_export_dependencies(rclcpp rclcpp_action)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
