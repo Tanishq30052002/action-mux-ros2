@@ -36,15 +36,16 @@ void CalculatorClient::create_goal_action(Calculator::Goal &goal) {
   std::mt19937 mt(rd());
 
   std::uniform_real_distribution<float> value(-10.0, 10.0);
-  goal.value_1 = value(mt);
-  goal.value_2 = value(mt);
+  goal.goal.value_1 = value(mt);
+  goal.goal.value_2 = value(mt);
 
   std::vector<std::string> operations = {"add", "subtract", "multiply",
                                          "divide"};
   std::uniform_int_distribution<int> idx_operations(0, operations.size() - 1);
-  goal.operation = operations[idx_operations(mt)];
+  goal.goal.operation = operations[idx_operations(mt)];
   RCLCPP_INFO(this->get_logger(), "[create_goal_msg] Goal: %f %s %f",
-              goal.value_1, goal.operation.c_str(), goal.value_2);
+              goal.goal.value_1, goal.goal.operation.c_str(),
+              goal.goal.value_2);
 }
 
 void CalculatorClient::send_new_goal_to_server() {
