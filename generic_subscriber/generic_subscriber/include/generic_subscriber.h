@@ -2,20 +2,12 @@
 #include "rclcpp/serialization.hpp"
 #include "rclcpp/serialized_message.hpp"
 
+#include <bits/stl_pair.h>
 #include <string>
 #include <yaml-cpp/yaml.h>
 
 #include "dynmsg/message_reading.hpp"
-#include "dynmsg/msg_parser.hpp"
-#include "dynmsg/string_utils.hpp"
-#include "dynmsg/types.h"
-#include "dynmsg/typesupport.hpp"
 #include "dynmsg/yaml_utils.hpp"
-// #include "dynmsg_demo/message_reading.hpp"
-#include "dynmsg_demo/typesupport_utils.hpp"
-
-// #include "std_msgs/msg/bool.hpp"
-// #include "std_msgs/msg/string.hpp"
 
 class GenericSubscriber : public rclcpp::Node {
 public:
@@ -51,6 +43,15 @@ private:
    */
   void
   generic_subscriber_callback(std::shared_ptr<rclcpp::SerializedMessage> msg);
+
+  /**
+   * @brief Get the Topic Type From String object
+   *
+   * @param topic_type_str "std_msgs/msg/Bool"
+   * @return std::pair<std::string, std::string> {"std_msgs", "Bool"}
+   */
+  std::pair<std::string, std::string>
+  getTopicTypeFromString(const std::string &topic_type_str);
 
   std::string topic_name_ = "/generic_topic";
   std::string detected_type_;
