@@ -1,5 +1,18 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/serialization.hpp"
+#include "rclcpp/serialized_message.hpp"
+
+#include <string>
+#include <yaml-cpp/yaml.h>
+
+#include "dynmsg/message_reading.hpp"
+#include "dynmsg/msg_parser.hpp"
+#include "dynmsg/string_utils.hpp"
+#include "dynmsg/types.h"
+#include "dynmsg/typesupport.hpp"
+#include "dynmsg/yaml_utils.hpp"
+// #include "dynmsg_demo/message_reading.hpp"
+#include "dynmsg_demo/typesupport_utils.hpp"
 
 class GenericSubscriber : public rclcpp::Node {
 public:

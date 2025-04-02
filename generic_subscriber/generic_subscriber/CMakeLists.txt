@@ -10,6 +10,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wall -fPIC -Wp,-D_GLIBCXX_ASSERTION
 # Include directories
 include_directories(include)
 
+
 add_library(generic_subscriber STATIC src/generic_subscriber.cpp)
-ament_target_dependencies(generic_subscriber rclcpp)
+ament_target_dependencies(generic_subscriber rclcpp dynmsg dynmsg_demo)
 target_include_directories(generic_subscriber PUBLIC ${PROJECT_SOURCE_DIR}/include ${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_cpp)

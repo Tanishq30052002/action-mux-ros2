@@ -56,9 +56,63 @@ void GenericSubscriber::create_subscription() {
                 topic_name_.c_str(), detected_type_.c_str());
   }
 }
+std::string removeMsgFromTopicType(const std::string &topic_type) {
+  std::string result = topic_type;
+  size_t pos = result.find("/msg");
+  if (pos != std::string::npos) {
+    result.erase(pos, 4);
+  }
+  return result;
+}
 
 void GenericSubscriber::generic_subscriber_callback(
     std::shared_ptr<rclcpp::SerializedMessage> msg) {
-  RCLCPP_INFO(this->get_logger(),
-              "[generic_subscription] Received a serialized message!");
+  RCLCPP_INFO(this->get_logger(), "Serialized msg received");
+
+  InterfaceTypeName topic_type_name =
+      get_topic_type_from_string_type(removeMsgFromTopicType(detected_type_));
+
+  const rosidl_message_type_support_t *ts = get_type_support(topic_type_name);
+
+  auto deserializer = rclcpp::SerializationBase(ts);
+  if (!ts) {
+    throw std::runtime_error("Type support is null for topic: ");
+  }
+  if (!msg) {
+    throw std::runtime_error("Message is null before deserialization.");
+  }
+
+  RosMessage_Cpp result;
+
+  deserializer.deserialize_message(msg.get(), &result);
+
+  // auto yaml_result = dynmsg::cpp::message_to_yaml(result);
+  std::cout << result.data << std::endl;
+
+  // auto library =
+  //     rclcpp::get_typesupport_library(message_type,
+  //     "rosidl_typesupport_cpp");
+
+  // auto type_support = rclcpp::get_typesupport_handle(
+  //     message_type, "rosidl_typesupport_cpp", *library);
+
+  // if (!type_support) {
+  //   RCLCPP_ERROR(this->get_logger(), "Failed to get TypeSupport for %s",
+  //                message_type.c_str());
+  //   return;
+  // }
+
+  // auto topic_type_name = InterfaceTypeName{
+  //     "std_msgs", "String"}; // Replace with dynamic type logic
+
+  // rclcpp::SerializationBase deserializer(type_support);
+
+  // RosMessage_Cpp result;
+  // deserializer.deserialize_message(msg.get(), &result);
+  // rclcpp::Serialization<YAML::Node>().deserialize_message()
+
+  //     // Convert result into YAML or JSON
+  //     auto yaml_result = dynmsg::cpp::message_to_yaml(result);
+
+  // std::cout << dynmsg::yaml_to_string(yaml_result) << std::endl;
 }
