@@ -50,8 +50,8 @@ private:
    * @param topic_type_str "std_msgs/msg/Bool"
    * @return std::pair<std::string, std::string> {"std_msgs", "Bool"}
    */
-  std::pair<std::string, std::string>
-  getTopicTypeFromString(const std::string &topic_type_str);
+  void
+  getTopicTypeFromString(std::pair<std::string, std::string> &topic_type_pair);
 
   std::string topic_name_ = "/generic_topic";
   std::string detected_type_;

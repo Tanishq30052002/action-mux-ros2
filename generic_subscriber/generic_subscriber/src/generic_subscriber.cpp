@@ -59,9 +59,9 @@ void GenericSubscriber::create_subscription() {
   }
 }
 
-std::pair<std::string, std::string>
-GenericSubscriber::getTopicTypeFromString(const std::string &topic_type_str) {
-  std::string tmp = topic_type_str;
+void GenericSubscriber::getTopicTypeFromString(
+    std::pair<std::string, std::string> &topic_type_pair) {
+  std::string tmp = detected_type_;
   size_t pos = tmp.find("/msg");
   if (pos != std::string::npos) {
     tmp.erase(pos, 4);
@@ -71,16 +71,14 @@ GenericSubscriber::getTopicTypeFromString(const std::string &topic_type_str) {
     throw std::runtime_error(
         "[getTopicTypeFromString] invalid type specification");
   }
-  auto topic_type = std::pair<std::string, std::string>(
-      tmp.substr(0, split_at), tmp.substr(split_at + 1));
-
-  return topic_type;
+  topic_type_pair.first = tmp.substr(0, split_at);
+  topic_type_pair.second = tmp.substr(split_at + 1);
 }
 
 void GenericSubscriber::generic_subscriber_callback(
     std::shared_ptr<rclcpp::SerializedMessage> msg) {
-  std::pair<std::string, std::string> topic_type_pair =
-      getTopicTypeFromString(detected_type_);
+  std::pair<std::string, std::string> topic_type_pair;
+  getTopicTypeFromString(topic_type_pair);
 
   RosMessage_Cpp ros_msg;
   const TypeInfo_Cpp *type_info = dynmsg::cpp::get_type_info(topic_type_pair);
