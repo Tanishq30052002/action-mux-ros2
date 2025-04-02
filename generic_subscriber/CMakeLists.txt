@@ -8,8 +8,6 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
-include_directories(/home/tanishq/ros2_ws/install/dynmsg/include)
-include_directories(/home/tanishq/ros2_ws/install/dynmsg)
 
 find_package(dynmsg REQUIRED)
 
