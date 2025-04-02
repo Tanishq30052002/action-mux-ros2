@@ -14,6 +14,9 @@
 // #include "dynmsg_demo/message_reading.hpp"
 #include "dynmsg_demo/typesupport_utils.hpp"
 
+// #include "std_msgs/msg/bool.hpp"
+// #include "std_msgs/msg/string.hpp"
+
 class GenericSubscriber : public rclcpp::Node {
 public:
   /**

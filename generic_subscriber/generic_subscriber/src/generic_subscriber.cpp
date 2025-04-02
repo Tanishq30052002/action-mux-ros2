@@ -67,17 +67,17 @@ std::string removeMsgFromTopicType(const std::string &topic_type) {
 
 void GenericSubscriber::generic_subscriber_callback(
     std::shared_ptr<rclcpp::SerializedMessage> msg) {
-  RCLCPP_INFO(this->get_logger(), "Serialized msg received");
-
+  RCLCPP_INFO(this->get_logger(), "Serialized Message Received");
   InterfaceTypeName topic_type_name =
       get_topic_type_from_string_type(removeMsgFromTopicType(detected_type_));
-  const rosidl_message_type_support_t *ts = get_type_support(topic_type_name);
-  auto deserializer = rclcpp::SerializationBase(ts);
 
-  RosMessage_Cpp result;
-  deserializer.deserialize_message(msg.get(), &result);
-  auto yaml_result = dynmsg::cpp::message_to_yaml(result);
+  RosMessage_Cpp ros_msg;
+  const TypeInfo_Cpp *type_info = dynmsg::cpp::get_type_info(topic_type_name);
+  rcl_allocator_t msg_alloc = msg.get()->get_rcl_serialized_message().allocator;
 
-  RCLCPP_INFO(this->get_logger(), "Deserialized Msg in YAML Format: %s",
-              yaml_result);
+  dynmsg::cpp::ros_message_with_typeinfo_init(type_info, &ros_msg, &msg_alloc);
+
+  auto yaml_msg = dynmsg::cpp::message_to_yaml(ros_msg);
+  auto string_msg = dynmsg::yaml_to_string(yaml_msg, true, true);
+  RCLCPP_INFO(this->get_logger(), "Deserialized Msg: %s", string_msg.c_str());
 }
