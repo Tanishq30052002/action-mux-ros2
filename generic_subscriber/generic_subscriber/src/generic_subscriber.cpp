@@ -71,48 +71,13 @@ void GenericSubscriber::generic_subscriber_callback(
 
   InterfaceTypeName topic_type_name =
       get_topic_type_from_string_type(removeMsgFromTopicType(detected_type_));
-
   const rosidl_message_type_support_t *ts = get_type_support(topic_type_name);
-
   auto deserializer = rclcpp::SerializationBase(ts);
-  if (!ts) {
-    throw std::runtime_error("Type support is null for topic: ");
-  }
-  if (!msg) {
-    throw std::runtime_error("Message is null before deserialization.");
-  }
 
   RosMessage_Cpp result;
-
   deserializer.deserialize_message(msg.get(), &result);
+  auto yaml_result = dynmsg::cpp::message_to_yaml(result);
 
-  // auto yaml_result = dynmsg::cpp::message_to_yaml(result);
-  std::cout << result.data << std::endl;
-
-  // auto library =
-  //     rclcpp::get_typesupport_library(message_type,
-  //     "rosidl_typesupport_cpp");
-
-  // auto type_support = rclcpp::get_typesupport_handle(
-  //     message_type, "rosidl_typesupport_cpp", *library);
-
-  // if (!type_support) {
-  //   RCLCPP_ERROR(this->get_logger(), "Failed to get TypeSupport for %s",
-  //                message_type.c_str());
-  //   return;
-  // }
-
-  // auto topic_type_name = InterfaceTypeName{
-  //     "std_msgs", "String"}; // Replace with dynamic type logic
-
-  // rclcpp::SerializationBase deserializer(type_support);
-
-  // RosMessage_Cpp result;
-  // deserializer.deserialize_message(msg.get(), &result);
-  // rclcpp::Serialization<YAML::Node>().deserialize_message()
-
-  //     // Convert result into YAML or JSON
-  //     auto yaml_result = dynmsg::cpp::message_to_yaml(result);
-
-  // std::cout << dynmsg::yaml_to_string(yaml_result) << std::endl;
+  RCLCPP_INFO(this->get_logger(), "Deserialized Msg in YAML Format: %s",
+              yaml_result);
 }
