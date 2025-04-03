@@ -75,29 +75,55 @@ void GenericSubscriber::getTopicTypeFromString(
   topic_type_pair.second = tmp.substr(split_at + 1);
 }
 
+typedef const rosidl_message_type_support_t *(*get_message_ts_func)();
+using TypeInfo_Cpp = rosidl_typesupport_introspection_cpp::MessageMembers;
+
 void GenericSubscriber::generic_subscriber_callback(
     std::shared_ptr<rclcpp::SerializedMessage> msg) {
-  std::pair<std::string, std::string> dynmsg_interference_type_name;
-  getTopicTypeFromString(dynmsg_interference_type_name);
 
-  RosMessage_Cpp ros_msg;
-  ros_msg.type_info = dynmsg::cpp::get_type_info(dynmsg_interference_type_name);
-  rcl_allocator_t *msg_alloc =
-      &msg.get()->get_rcl_serialized_message().allocator;
+  std::pair<std::string, std::string> interface_type;
+  getTopicTypeFromString(interface_type);
+  const std::string pkg_name = interface_type.first;
+  const std::string msg_name = interface_type.second;
 
-  ros_msg.data = static_cast<uint8_t *>(
-      msg_alloc->allocate(ros_msg.type_info->size_of_, msg_alloc->state));
+  std::string ts_lib_name =
+      "lib" + pkg_name + "__rosidl_typesupport_introspection_cpp.so";
 
-  ros_msg.type_info->init_function(
-      ros_msg.data, rosidl_runtime_cpp::MessageInitialization::ZERO);
+  RCUTILS_LOG_DEBUG_NAMED("dynmsg",
+                          "Loading C++ introspection type support library %s",
+                          ts_lib_name.c_str());
+  void *introspection_type_support_lib = dlopen(ts_lib_name.c_str(), RTLD_LAZY);
+  if (nullptr == introspection_type_support_lib) {
+    RCUTILS_LOG_ERROR_NAMED(
+        "dynmsg", "failed to load C++ introspection type support library: %s",
+        dlerror());
+  }
 
-  auto yaml_msg = dynmsg::cpp::message_to_yaml(ros_msg);
-  auto string_msg = dynmsg::yaml_to_string(yaml_msg, true, false);
-  RCLCPP_INFO(this->get_logger(),
-              "[generic_subscriber_callback]\nTopic: %s\nDetected Type: "
-              "%s\nROS2 Message:\n%s",
-              topic_name_.c_str(), detected_type_.c_str(), string_msg.c_str());
+  std::string ts_func_name = "_ZN36rosidl_typesupport_introspection_cpp31get_"
+                             "message_type_support_handleIN" +
+                             std::to_string(pkg_name.length()) + pkg_name +
+                             "3msg" + std::to_string(msg_name.length() + 1) +
+                             msg_name +
+                             "_ISaIvEEEEEPK29rosidl_message_type_support_tv";
+  RCUTILS_LOG_DEBUG_NAMED("dynmsg", "Loading C++ type support function %s",
+                          ts_func_name.c_str());
 
-  ros_msg.type_info->fini_function(ros_msg.data);
-  msg_alloc->deallocate(ros_msg.data, msg_alloc->state);
+  get_message_ts_func introspection_type_support_handle_func =
+      reinterpret_cast<get_message_ts_func>(
+          dlsym(introspection_type_support_lib, ts_func_name.c_str()));
+
+  if (nullptr == introspection_type_support_handle_func) {
+    RCUTILS_LOG_ERROR_NAMED(
+        "dynmsg", "failed to load C++ introspection type support function: %s",
+        dlerror());
+  }
+
+  // Call the function to get the introspection information we want
+  const rosidl_message_type_support_t *introspection_ts =
+      introspection_type_support_handle_func();
+  RCUTILS_LOG_DEBUG_NAMED("dynmsg", "Loaded C++ type support %s",
+                          introspection_ts->typesupport_identifier);
+
+  const TypeInfo_Cpp *type_info =
+      reinterpret_cast<const TypeInfo_Cpp *>(introspection_ts->data);
 }
