@@ -126,4 +126,28 @@ void GenericSubscriber::generic_subscriber_callback(
 
   const TypeInfo_Cpp *type_info =
       reinterpret_cast<const TypeInfo_Cpp *>(introspection_ts->data);
+
+  rcl_allocator_t *msg_alloc =
+      &msg.get()->get_rcl_serialized_message().allocator;
+  uint8_t *data = static_cast<uint8_t *>(
+      msg_alloc->allocate(type_info->size_of_, msg_alloc->state));
+  type_info->init_function(data,
+                           rosidl_runtime_cpp::MessageInitialization::ZERO);
+  RosMessage_Cpp ros_msg;
+  // rclcpp::SerializationBase serializer(introspection_ts);
+  // auto ptr = msg.get();
+  // RCLCPP_INFO(this->get_logger(), "%p\n ", (void *)ptr);
+
+  // void *des_msg = operator new(type_info->size_of_);
+  // serializer.deserialize_message(msg.get(), des_msg);
+
+  ros_msg.data = data;
+  ros_msg.type_info = type_info;
+
+  auto yaml_msg = dynmsg::cpp::message_to_yaml(ros_msg);
+  auto string_msg = dynmsg::yaml_to_string(yaml_msg, true, false);
+  RCLCPP_INFO(this->get_logger(),
+              "[generic_subscriber_callback]\nTopic: %s\nDetected Type: "
+              "%s\nROS2 Message:\n%s",
+              topic_name_.c_str(), detected_type_.c_str(), string_msg.c_str());
 }
