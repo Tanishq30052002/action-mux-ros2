@@ -6,6 +6,7 @@
 #include <string>
 #include <yaml-cpp/yaml.h>
 
+#include "dlfcn.h"
 #include "dynmsg/message_reading.hpp"
 #include "dynmsg/yaml_utils.hpp"
 
