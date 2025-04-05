@@ -134,12 +134,27 @@ void GenericSubscriber::generic_subscriber_callback(
   type_info->init_function(data,
                            rosidl_runtime_cpp::MessageInitialization::ZERO);
   RosMessage_Cpp ros_msg;
-  // rclcpp::SerializationBase serializer(introspection_ts);
-  // auto ptr = msg.get();
-  // RCLCPP_INFO(this->get_logger(), "%p\n ", (void *)ptr);
+  rclcpp::SerializationBase serializer(introspection_ts);
+  auto ptr = msg.get();
+  RCLCPP_INFO(this->get_logger(), "%p\n ", (void *)ptr);
+  void *des_msg = operator new(type_info->size_of_);
 
-  // void *des_msg = operator new(type_info->size_of_);
-  // serializer.deserialize_message(msg.get(), des_msg);
+  if ((void *)introspection_ts->data == nullptr)
+    RCLCPP_INFO(this->get_logger(), "data is null");
+  if ((void *)introspection_ts->func == nullptr)
+    RCLCPP_INFO(this->get_logger(), "func is null");
+  if ((void *)introspection_ts->typesupport_identifier == nullptr)
+    RCLCPP_INFO(this->get_logger(), "type_identifier is null");
+
+  auto t = introspection_ts->func(
+      introspection_ts,
+      rosidl_typesupport_fastrtps_cpp::typesupport_identifier);
+  if (t == nullptr)
+    RCLCPP_INFO(this->get_logger(), "t is null");
+
+  RCLCPP_INFO(this->get_logger(), "before deserializer");
+  serializer.deserialize_message(ptr, des_msg);
+  RCLCPP_INFO(this->get_logger(), "after deserializer");
 
   ros_msg.data = data;
   ros_msg.type_info = type_info;
