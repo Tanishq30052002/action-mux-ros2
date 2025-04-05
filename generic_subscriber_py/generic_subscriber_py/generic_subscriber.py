@@ -22,7 +22,7 @@ class GenericSubscriber(Node):
     def waitForTopic(self):
         while rclpy.ok():
             topics = dict(self.get_topic_names_and_types())
-            if self.topic_name not in topics or not topics[self.topic_name]:
+            if self.count_publishers(self.topic_name) == 0:
                 self.get_logger().warn(
                     f"[waitForTopic] Topic '{self.topic_name}' not found. Waiting..."
                 )

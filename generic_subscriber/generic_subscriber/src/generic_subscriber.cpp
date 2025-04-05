@@ -29,7 +29,7 @@ void GenericSubscriber::waitForTopic() {
     auto topics = this->get_topic_names_and_types();
     auto it = topics.find(topic_name_);
 
-    if (it == topics.end() || it->second.empty()) {
+    if (this->count_publishers(topic_name_) == 0) {
       RCLCPP_WARN(this->get_logger(), "Topic '%s' not found. Waiting...",
                   topic_name_.c_str());
       rclcpp::sleep_for(std::chrono::milliseconds(500)); // Retry delay
