@@ -14,7 +14,7 @@ CalculatorClient::CalculatorClient() : Node("calculator_action_client") {
 void CalculatorClient::calculatorGoalCallback(
     const calculator_msgs::msg::CalculatorGoal::SharedPtr msg) {
 
-  if (!client_->wait_for_action_server(5s)) {
+  if (!client_->wait_for_action_server(std::chrono::seconds(5))) {
     RCLCPP_ERROR(this->get_logger(),
                  "[calculatorGoalCallback] Action Server not available!");
     return;

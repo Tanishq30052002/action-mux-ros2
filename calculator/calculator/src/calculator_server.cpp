@@ -68,8 +68,8 @@ void CalculatorServer::executeGoal(
           result->result = goal.value_1 / goal.value_2;
         else {
           result->result = 0;
-          RCLCPP_ERROR(this->get_logger(),
-                       "[executeGoal] Returning 0, as operation invalid");
+          RCLCPP_WARN(this->get_logger(),
+                      "[executeGoal] Returning 0, as operation invalid");
         }
       } else {
         RCLCPP_ERROR(this->get_logger(), "[executeGoal] Invalid Operation");

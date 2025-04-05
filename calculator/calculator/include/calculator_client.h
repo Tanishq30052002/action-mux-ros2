@@ -10,7 +10,6 @@
 
 using Calculator = calculator_msgs::action::Calculator;
 using ClientGoalHandle = rclcpp_action::ClientGoalHandle<Calculator>;
-using namespace std::chrono_literals;
 using namespace std::placeholders;
 
 class CalculatorClient : public rclcpp::Node {
