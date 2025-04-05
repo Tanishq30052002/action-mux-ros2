@@ -16,7 +16,7 @@ void CalculatorGoalPublisher::calculatorGoalPublisher() {
   std::random_device rd;
   std::mt19937 mt(rd());
 
-  std::uniform_real_distribution<float> value(-10.0, 10.0);
+  std::uniform_int_distribution<int> value(-10, 10);
   msg.value_1 = value(mt);
   msg.value_2 = value(mt);
 
@@ -25,7 +25,7 @@ void CalculatorGoalPublisher::calculatorGoalPublisher() {
   std::uniform_int_distribution<int> idx_operations(0, operations.size() - 1);
   msg.operation = operations[idx_operations(mt)];
 
-  RCLCPP_INFO(this->get_logger(), "[calculatorGoalPublisher] Goal: %f %s %f",
+  RCLCPP_INFO(this->get_logger(), "[calculatorGoalPublisher] Goal: %d %s %d",
               msg.value_1, msg.operation.c_str(), msg.value_2);
   calculator_goal_publisher_->publish(msg);
 }

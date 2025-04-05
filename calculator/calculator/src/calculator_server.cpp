@@ -12,7 +12,7 @@ CalculatorServer::CalculatorServer() : Node("calculator_action_server") {
 
 rclcpp_action::GoalResponse
 CalculatorServer::handleGoal(const rclcpp_action::GoalUUID &uuid,
-                              std::shared_ptr<const Calculator::Goal> goal) {
+                             std::shared_ptr<const Calculator::Goal> goal) {
   (void)uuid;
   RCLCPP_INFO(this->get_logger(), "[handleGoal] Received new goal!");
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
