@@ -20,6 +20,7 @@ public:
 private:
   rclcpp_action::Server<Calculator>::SharedPtr server_;
   std::mutex goal_mutex_;
+  float processing_time_ = 5.0; // in secs
 
   /**
    * @brief Handle new goals

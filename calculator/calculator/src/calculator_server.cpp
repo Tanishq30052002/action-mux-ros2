@@ -39,16 +39,16 @@ void CalculatorServer::executeGoal(
   auto result = std::make_shared<Calculator::Result>();
   auto feedback = std::make_shared<Calculator::Feedback>();
 
-  int frequency = 100; // Hz
+  float frequency = 10.0;
   rclcpp::Rate rate(frequency);
-  for (int i = 1; i <= 5 * frequency && rclcpp::ok(); ++i) {
+  for (int i = 1; i <= processing_time_ * frequency && rclcpp::ok(); ++i) {
     if (goal_handle->is_canceling()) {
       goal_handle->canceled(result);
       RCLCPP_WARN(this->get_logger(), "[executeGoal] Goal Cancelled");
       return;
     }
-    feedback->time_remaining =
-        static_cast<float>(5.0 - static_cast<float>(i / 100.0));
+    feedback->time_remaining = static_cast<float>(
+        processing_time_ - static_cast<float>(i / frequency));
     goal_handle->publish_feedback(feedback);
     rate.sleep();
   }
