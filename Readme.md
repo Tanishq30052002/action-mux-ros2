@@ -62,7 +62,7 @@ Google Summer of Code [Assignment - PAL ROBOTICS]
     ##### TO RUN GENERIC SUBSCRIBER IN PYTHON  (RECOMMENDED) #####
     ros2 run generic_subscriber_py run_generic_subscriber
 
-    ##### TO RUN GENERIC SUBSCRIBER IN C++  (WIP)####
+    ##### TO RUN GENERIC SUBSCRIBER IN C++  (WIP) ####
     ros2 run generic_subscriber run_generic_subscriber
 
     <!-- Terminal - 2 (Testing Publisher) -->
