@@ -6,6 +6,9 @@ CalculatorGoalPublisher::CalculatorGoalPublisher(unsigned int time_interval_s)
       this->create_publisher<calculator_msgs::msg::CalculatorGoal>(
           "/calculator_goal", 10);
 
+  RCLCPP_INFO(this->get_logger(),
+              "[CalculatorGoalPublisher] Publisher is Ready !!!");
+
   timer_ = this->create_wall_timer(
       std::chrono::seconds(time_interval_s_),
       std::bind(&CalculatorGoalPublisher::calculatorGoalPublisher, this));
