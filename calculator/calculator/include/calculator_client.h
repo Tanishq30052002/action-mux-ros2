@@ -32,14 +32,14 @@ private:
    *
    * @param msg
    */
-  void calculator_goal_callback(
+  void calculatorGoalCallback(
       const calculator_msgs::msg::CalculatorGoal::SharedPtr msg);
 
   /**
    * @brief
    *
    */
-  void send_new_goal_to_server(
+  void sendNewGoalToServer(
       const calculator_msgs::msg::CalculatorGoal::SharedPtr msg);
 
   /**
@@ -47,22 +47,22 @@ private:
    *
    * @param goal_handle
    */
-  void goal_response_callback(const ClientGoalHandle::SharedPtr &goal_handle);
+  void goalResponseCallback(const ClientGoalHandle::SharedPtr &goal_handle);
 
   /**
    * @brief
    *
    * @param feedback
    */
-  void feedback_callback(ClientGoalHandle::SharedPtr,
-                         Calculator::Feedback::ConstSharedPtr feedback);
+  void feedbackCallback(ClientGoalHandle::SharedPtr,
+                        Calculator::Feedback::ConstSharedPtr feedback);
 
   /**
    * @brief
    *
    * @param result
    */
-  void result_callback(const ClientGoalHandle::WrappedResult &result);
+  void resultCallback(const ClientGoalHandle::WrappedResult &result);
 };
 
 #endif // CALCULATOR_CLIENT_H

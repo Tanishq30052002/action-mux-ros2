@@ -49,7 +49,8 @@ Google Summer of Code [Assignment - PAL ROBOTICS]
     ros2 run calculator run_server_calculate
 
     <!-- Terminal - 2 (Action Client) -->
-    ros2 run calculator run_client_calculate
+    ros2 run calculator run_client_calculate ### without feedback printing
+    ros2 run calculator run_client_calculate --ros-args --log-level calculator_action_client:=DEBUG ### with feedback printing
 
     <!-- Terminal - 3 (Goal Publisher) -->
     ros2 run calculator run_calculator_goal_publisher <TIME_DIFF_BETWEEN_2_GOALS in secs>

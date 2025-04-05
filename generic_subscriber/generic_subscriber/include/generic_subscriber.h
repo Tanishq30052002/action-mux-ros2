@@ -7,32 +7,34 @@
 #include "dynmsg/typesupport.hpp"
 #include "dynmsg/yaml_utils.hpp"
 
+using namespace std::placeholders;
+
 class GenericSubscriber : public rclcpp::Node {
 public:
   /**
    * @brief Construct a new Generic Subscriber object
    *
    */
-  GenericSubscriber();
+  GenericSubscriber(const std::string &topic_name);
 
 private:
   /**
    * @brief
    *
    */
-  void check_topic_status();
+  void checkTopicStatus();
 
   /**
    * @brief
    *
    */
-  void wait_for_topic();
+  void waitForTopic();
 
   /**
    * @brief Create a subscription object
    *
    */
-  void create_subscription();
+  void createSubscription();
 
   /**
    * @brief
@@ -40,18 +42,16 @@ private:
    * @param msg
    */
   void
-  generic_subscriber_callback(std::shared_ptr<rclcpp::SerializedMessage> msg);
+  genericSubscriberCallback(std::shared_ptr<rclcpp::SerializedMessage> msg);
 
   /**
    * @brief Get the Topic Type From String object
    *
    * @param topic_type_str "std_msgs/msg/Bool"
-   * @return std::pair<std::string, std::string> {"std_msgs", "Bool"}
+   * @return InterfaceTypeName {"std_msgs", "Bool"}
    */
-  void
-  getTopicTypeFromString(std::pair<std::string, std::string> &topic_type_pair);
-
-  std::string topic_name_ = "/generic_topic";
+  void getTopicTypeFromString(InterfaceTypeName &topic_type_pair);
+  std::string topic_name_;
   std::string detected_type_;
   rclcpp::GenericSubscription::SharedPtr generic_subscriber_;
   rclcpp::TimerBase::SharedPtr type_check_timer_;

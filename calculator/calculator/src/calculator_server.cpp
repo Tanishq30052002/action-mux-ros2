@@ -3,52 +3,52 @@
 CalculatorServer::CalculatorServer() : Node("calculator_action_server") {
   server_ = rclcpp_action::create_server<Calculator>(
       this, "calculator",
-      std::bind(&CalculatorServer::handle_goal, this, _1, _2),
-      std::bind(&CalculatorServer::handle_cancel, this, _1),
-      std::bind(&CalculatorServer::handle_accepted, this, _1));
+      std::bind(&CalculatorServer::handleGoal, this, _1, _2),
+      std::bind(&CalculatorServer::handleCancel, this, _1),
+      std::bind(&CalculatorServer::handleAccepted, this, _1));
 
   RCLCPP_INFO(this->get_logger(), "[CalculatorServer] Server is Ready !!! ");
 }
 
 rclcpp_action::GoalResponse
-CalculatorServer::handle_goal(const rclcpp_action::GoalUUID &uuid,
-                              std::shared_ptr<const Calculator::Goal> goal) {
+CalculatorServer::handleGoal(const rclcpp_action::GoalUUID &uuid,
+                             std::shared_ptr<const Calculator::Goal> goal) {
   (void)uuid;
-  RCLCPP_INFO(this->get_logger(), "[handle_goal] Received new goal!");
+  RCLCPP_INFO(this->get_logger(), "[handleGoal] Received new goal!");
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 
-rclcpp_action::CancelResponse CalculatorServer::handle_cancel(
+rclcpp_action::CancelResponse CalculatorServer::handleCancel(
     const std::shared_ptr<ServerGoalHandle> goal_handle) {
   std::lock_guard<std::mutex> lock(goal_mutex_);
 
   if (goal_handle->is_active()) {
-    RCLCPP_WARN(this->get_logger(), "[handle_cancel] Cancelling Goal");
+    RCLCPP_WARN(this->get_logger(), "[handleCancel] Cancelling Goal");
     return rclcpp_action::CancelResponse::ACCEPT;
   }
   return rclcpp_action::CancelResponse::REJECT;
 }
 
-void CalculatorServer::handle_accepted(
+void CalculatorServer::handleAccepted(
     const std::shared_ptr<ServerGoalHandle> goal_handle) {
-  std::thread(&CalculatorServer::execute, this, goal_handle).detach();
+  std::thread(&CalculatorServer::executeGoal, this, goal_handle).detach();
 }
 
-void CalculatorServer::execute(
+void CalculatorServer::executeGoal(
     const std::shared_ptr<ServerGoalHandle> goal_handle) {
   auto result = std::make_shared<Calculator::Result>();
   auto feedback = std::make_shared<Calculator::Feedback>();
 
-  int frequency = 100; // Hz
+  float frequency = 10.0;
   rclcpp::Rate rate(frequency);
-  for (int i = 1; i <= 5 * frequency && rclcpp::ok(); ++i) {
+  for (int i = 1; i <= processing_time_ * frequency && rclcpp::ok(); ++i) {
     if (goal_handle->is_canceling()) {
       goal_handle->canceled(result);
-      RCLCPP_WARN(this->get_logger(), "[execute] Goal Cancelled");
+      RCLCPP_WARN(this->get_logger(), "[executeGoal] Goal Cancelled");
       return;
     }
-    feedback->time_remaining =
-        static_cast<float>(5.0 - static_cast<float>(i / 100.0));
+    feedback->time_remaining = static_cast<float>(
+        processing_time_ - static_cast<float>(i / frequency));
     goal_handle->publish_feedback(feedback);
     rate.sleep();
   }
@@ -63,18 +63,25 @@ void CalculatorServer::execute(
       } else if (goal.operation == "multiply") {
         result->result = goal.value_1 * goal.value_2;
       } else if (goal.operation == "divide") {
-        result->result = goal.value_1 / goal.value_2;
+        if (goal.value_2)
+          result->result = goal.value_1 / goal.value_2;
+        else {
+          result->result = 0;
+          RCLCPP_ERROR(this->get_logger(),
+                       "[executeGoal] Returning 0, as operation invalid");
+        }
       } else {
-        RCLCPP_ERROR(this->get_logger(), "[execute] Invalid Operation");
+        RCLCPP_ERROR(this->get_logger(), "[executeGoal] Invalid Operation");
         result->result = 0;
       }
       goal_handle->succeed(result);
-      RCLCPP_INFO(this->get_logger(), "[execute] Goal Process Successfully");
+      RCLCPP_INFO(this->get_logger(),
+                  "[executeGoal] Goal Process Successfully");
     }
   }
   if (!rclcpp::ok()) {
     RCLCPP_WARN(this->get_logger(),
-                "[execute] ROS is shutting down, stopping execution.");
+                "[executeGoal] ROS is shutting down, stopping execution.");
     rclcpp::shutdown();
     return;
   }

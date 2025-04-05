@@ -24,7 +24,7 @@ private:
    * @brief
    *
    */
-  void calculator_goal_publisher();
+  void calculatorGoalPublisher();
 
   rclcpp::Publisher<calculator_msgs::msg::CalculatorGoal>::SharedPtr
       calculator_goal_publisher_;
