@@ -29,8 +29,8 @@ private:
    * @return rclcpp_action::GoalResponse
    */
   rclcpp_action::GoalResponse
-  handle_goal(const rclcpp_action::GoalUUID &uuid,
-              std::shared_ptr<const Calculator::Goal> goal);
+  handleGoal(const rclcpp_action::GoalUUID &uuid,
+             std::shared_ptr<const Calculator::Goal> goal);
 
   /**
    * @brief Handle cancel requests
@@ -39,21 +39,21 @@ private:
    * @return rclcpp_action::CancelResponse
    */
   rclcpp_action::CancelResponse
-  handle_cancel(const std::shared_ptr<ServerGoalHandle> goal_handle);
+  handleCancel(const std::shared_ptr<ServerGoalHandle> goal_handle);
 
   /**
    * @brief Accept and process goal
    *
    * @param goal_handle
    */
-  void handle_accepted(const std::shared_ptr<ServerGoalHandle> goal_handle);
+  void handleAccepted(const std::shared_ptr<ServerGoalHandle> goal_handle);
 
   /**
    * @brief Execute goal and handle cancellation
    *
    * @param goal_handle
    */
-  void execute(const std::shared_ptr<ServerGoalHandle> goal_handle);
+  void executeGoal(const std::shared_ptr<ServerGoalHandle> goal_handle);
 };
 
 #endif // CALCULATOR_SERVER_H

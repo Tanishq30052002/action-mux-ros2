@@ -6,36 +6,35 @@ CalculatorClient::CalculatorClient() : Node("calculator_action_client") {
   calculator_goal_subscriber_ =
       this->create_subscription<calculator_msgs::msg::CalculatorGoal>(
           "/calculator_goal", 10,
-          std::bind(&CalculatorClient::calculator_goal_callback, this, _1));
+          std::bind(&CalculatorClient::calculatorGoalCallback, this, _1));
 
   RCLCPP_INFO(this->get_logger(), "[CalculatorClient] Client is Ready !!!");
 }
 
-void CalculatorClient::calculator_goal_callback(
+void CalculatorClient::calculatorGoalCallback(
     const calculator_msgs::msg::CalculatorGoal::SharedPtr msg) {
 
   if (!client_->wait_for_action_server(5s)) {
     RCLCPP_ERROR(this->get_logger(),
-                 "[calculator_goal_callback] Action Server not available!");
+                 "[calculatorGoalCallback] Action Server not available!");
     return;
   }
 
   RCLCPP_INFO(this->get_logger(),
-              "[calculator_goal_callback] Received new goal!");
+              "[calculatorGoalCallback] Received new goal!");
   // If an active goal exists, cancel it before sending a new one
   if (client_goal_handle_) {
-    RCLCPP_WARN(
-        this->get_logger(),
-        "[calculator_goal_callback] Current Goal Active, Cancelling it");
+    RCLCPP_WARN(this->get_logger(),
+                "[calculatorGoalCallback] Current Goal Active, Cancelling it");
 
     client_->async_cancel_goal(client_goal_handle_);
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
 
-  send_new_goal_to_server(msg);
+  sendNewGoalToServer(msg);
 }
 
-void CalculatorClient::send_new_goal_to_server(
+void CalculatorClient::sendNewGoalToServer(
     const calculator_msgs::msg::CalculatorGoal::SharedPtr msg) {
   auto goal = Calculator::Goal();
   goal.goal.value_1 = msg->value_1;
@@ -44,13 +43,13 @@ void CalculatorClient::send_new_goal_to_server(
 
   auto send_goal_options = rclcpp_action::Client<Calculator>::SendGoalOptions();
   send_goal_options.goal_response_callback =
-      std::bind(&CalculatorClient::goal_response_callback, this, _1);
+      std::bind(&CalculatorClient::goalResponseCallback, this, _1);
   send_goal_options.feedback_callback =
-      std::bind(&CalculatorClient::feedback_callback, this, _1, _2);
+      std::bind(&CalculatorClient::feedbackCallback, this, _1, _2);
   send_goal_options.result_callback =
-      std::bind(&CalculatorClient::result_callback, this, _1);
+      std::bind(&CalculatorClient::resultCallback, this, _1);
 
-  RCLCPP_INFO(this->get_logger(), "[send_new_goal_to_server] Sending new goal");
+  RCLCPP_INFO(this->get_logger(), "[sendNewGoalToServer] Sending new goal");
   auto future_goal_handle = client_->async_send_goal(goal, send_goal_options);
 
   // Handle future goal assignment
@@ -62,37 +61,37 @@ void CalculatorClient::send_new_goal_to_server(
   }).detach();
 }
 
-void CalculatorClient::goal_response_callback(
+void CalculatorClient::goalResponseCallback(
     const ClientGoalHandle::SharedPtr &goal_handle) {
   if (!goal_handle) {
     RCLCPP_ERROR(this->get_logger(),
-                 "[goal_response_callback] Goal was rejected by server.");
+                 "[goalResponseCallback] Goal was rejected by server.");
   } else {
-    RCLCPP_INFO(this->get_logger(), "[goal_response_callback] Goal accepted!");
+    RCLCPP_INFO(this->get_logger(), "[goalResponseCallback] Goal accepted!");
   }
 }
 
-void CalculatorClient::feedback_callback(
+void CalculatorClient::feedbackCallback(
     ClientGoalHandle::SharedPtr,
     Calculator::Feedback::ConstSharedPtr feedback) {
   float processing_time_left = feedback->time_remaining;
   RCLCPP_DEBUG(this->get_logger(),
-               "[feedback_callback] Time left to process: %f",
+               "[feedbackCallback] Time left to process: %f",
                processing_time_left);
 }
 
-void CalculatorClient::result_callback(
+void CalculatorClient::resultCallback(
     const ClientGoalHandle::WrappedResult &result) {
   if (result.code == rclcpp_action::ResultCode::SUCCEEDED) {
     RCLCPP_INFO(this->get_logger(),
-                "[result_callback] Goal Succeeded, Result: %f",
+                "[resultCallback] Goal Succeeded, Result: %f",
                 result.result.get()->result);
     client_goal_handle_ = nullptr;
   } else if (result.code == rclcpp_action::ResultCode::CANCELED) {
-    RCLCPP_WARN(this->get_logger(), "[result_callback] Goal Cancelled.");
+    RCLCPP_WARN(this->get_logger(), "[resultCallback] Goal Cancelled.");
   } else {
     RCLCPP_ERROR(this->get_logger(),
-                 "[result_callback] Goal failed with code: %d",
+                 "[resultCallback] Goal failed with code: %d",
                  static_cast<int>(result.code));
   }
 }
