@@ -6,14 +6,9 @@
 #include <string>
 #include <yaml-cpp/yaml.h>
 
-#include "dlfcn.h"
 #include "dynmsg/message_reading.hpp"
+#include "dynmsg/typesupport.hpp"
 #include "dynmsg/yaml_utils.hpp"
-
-#include "rosidl_typesupport_fastrtps_c/identifier.h"
-#include "rosidl_typesupport_fastrtps_cpp/identifier.hpp"
-#include "rosidl_typesupport_fastrtps_cpp/message_type_support.h"
-#include "rosidl_typesupport_fastrtps_cpp/service_type_support.h"
 
 class GenericSubscriber : public rclcpp::Node {
 public:
