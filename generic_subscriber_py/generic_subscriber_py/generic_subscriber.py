@@ -23,13 +23,12 @@ class GenericSubscriber(Node):
     def wait_for_topic(self):
         while rclpy.ok():
             topics = dict(self.get_topic_names_and_types())
-            if self.topic_name not in topics or not topics[self.topic_name]:
+            if self.count_publishers(self.topic_name) == 0:
+                time.sleep(0.5)
                 self.get_logger().warn(
                     f"Topic '{self.topic_name}' not found. Waiting..."
                 )
-                time.sleep(0.5)
                 continue
-
             self.detected_type_str = topics[self.topic_name][0]
             self.get_logger().info(
                 f"[wait_for_topic] Detected type: {self.detected_type_str}"
@@ -46,6 +45,9 @@ class GenericSubscriber(Node):
         self.get_logger().warn(
             f"[check_topic_status] No publishers on '{self.topic_name}', resetting subscription."
         )
+        if self.subscription is not None:
+            self.destroy_subscription(self.subscription)
+            self.subscription = None
         self.subscription = None
         self.detected_type_str = None
         self.msg_class = None
