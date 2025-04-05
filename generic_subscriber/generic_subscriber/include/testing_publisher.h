@@ -10,9 +10,6 @@ public:
   TestingPublisher(const std::string &topic_name, const int mode);
 
 private:
-  int mode_;
-  std::string topic_name_;
-
   rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr pub_bool_;
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr pub_string_;
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr pub_twist_;

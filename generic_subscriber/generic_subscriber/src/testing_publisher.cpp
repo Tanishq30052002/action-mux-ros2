@@ -2,11 +2,11 @@
 
 TestingPublisher::TestingPublisher(const std::string &topic_name,
                                    const int mode)
-    : Node("testing_publisher"), topic_name_(topic_name), mode_(mode) {
-  switch (mode_) {
+    : Node("testing_publisher") {
+  switch (mode) {
   case 1: {
     pub_string_ = this->create_publisher<std_msgs::msg::String>(
-        topic_name_, rclcpp::QoS(10));
+        topic_name, rclcpp::QoS(10));
     timer_ = this->create_wall_timer(std::chrono::seconds(1), [this]() {
       auto msg = std_msgs::msg::String();
       msg.data = "Hello World !!!";
@@ -16,7 +16,7 @@ TestingPublisher::TestingPublisher(const std::string &topic_name,
     break;
   }
   case 2: {
-    pub_bool_ = this->create_publisher<std_msgs::msg::Bool>(topic_name_,
+    pub_bool_ = this->create_publisher<std_msgs::msg::Bool>(topic_name,
                                                             rclcpp::QoS(10));
     timer_ = this->create_wall_timer(std::chrono::seconds(1), [this]() {
       auto msg = std_msgs::msg::Bool();
@@ -28,7 +28,7 @@ TestingPublisher::TestingPublisher(const std::string &topic_name,
   }
   case 3: {
     pub_twist_ = this->create_publisher<geometry_msgs::msg::Twist>(
-        topic_name_, rclcpp::QoS(10));
+        topic_name, rclcpp::QoS(10));
     timer_ = this->create_wall_timer(std::chrono::seconds(1), [this]() {
       auto msg = geometry_msgs::msg::Twist();
       msg.angular.x = 1.0;
@@ -44,7 +44,7 @@ TestingPublisher::TestingPublisher(const std::string &topic_name,
   }
   case 4: {
     pub_pose_ = this->create_publisher<geometry_msgs::msg::Pose>(
-        topic_name_, rclcpp::QoS(10));
+        topic_name, rclcpp::QoS(10));
     timer_ = this->create_wall_timer(std::chrono::seconds(1), [this]() {
       auto msg = geometry_msgs::msg::Pose();
       msg.position.x = 1.0;
