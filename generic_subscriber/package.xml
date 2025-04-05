@@ -13,6 +13,8 @@
   <test_depend>ament_lint_common</test_depend>
 
   <build_depend>dynmsg</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
