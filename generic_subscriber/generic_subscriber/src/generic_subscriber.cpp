@@ -1,29 +1,29 @@
 #include "generic_subscriber.h"
 
 GenericSubscriber::GenericSubscriber() : Node("generic_subscriber") {
-  wait_for_topic();
+  waitForTopic();
 
   // Timer to check for active publishers and type changes
   type_check_timer_ = this->create_wall_timer(
       std::chrono::seconds(2),
-      std::bind(&GenericSubscriber::check_topic_status, this));
+      std::bind(&GenericSubscriber::checkTopicStatus, this));
 }
 
-void GenericSubscriber::check_topic_status() {
+void GenericSubscriber::checkTopicStatus() {
   if (this->count_publishers(topic_name_))
     return;
   RCLCPP_WARN(this->get_logger(),
-              "[check_topic_status] No active publishers on topic '%s'. "
+              "[checkTopicStatus] No active publishers on topic '%s'. "
               "Resetting subscription...",
               topic_name_.c_str());
 
   generic_subscriber_.reset(); // Unsubscribe
   detected_type_.clear();      // Reset detected type
-  wait_for_topic();            // Wait for topic again
+  waitForTopic();              // Wait for topic again
   return;
 }
 
-void GenericSubscriber::wait_for_topic() {
+void GenericSubscriber::waitForTopic() {
   while (rclcpp::ok()) {
     auto topics = this->get_topic_names_and_types();
     auto it = topics.find(topic_name_);
@@ -35,26 +35,25 @@ void GenericSubscriber::wait_for_topic() {
       continue;
     }
 
-    RCLCPP_INFO(this->get_logger(), "[wait_for_topic] Topic '%s' detected!",
+    RCLCPP_INFO(this->get_logger(), "[waitForTopic] Topic '%s' detected!",
                 topic_name_.c_str());
     detected_type_ = it->second[0];
-    RCLCPP_INFO(this->get_logger(), "[wait_for_topic] Detected topic type: %s",
+    RCLCPP_INFO(this->get_logger(), "[waitForTopic] Detected topic type: %s",
                 detected_type_.c_str());
 
-    create_subscription();
+    createSubscription();
     break; // Exit loop once subscription is created
   }
 }
 
-void GenericSubscriber::create_subscription() {
+void GenericSubscriber::createSubscription() {
   if (!detected_type_.empty()) {
     generic_subscriber_ = this->create_generic_subscription(
         topic_name_, detected_type_, rclcpp::QoS(10),
-        std::bind(&GenericSubscriber::generic_subscriber_callback, this,
-                  std::placeholders::_1));
+        std::bind(&GenericSubscriber::genericSubscriberCallback, this, _1));
 
     RCLCPP_INFO(this->get_logger(),
-                "[create_subscription] Subscribed to %s (Type: %s)",
+                "[createSubscription] Subscribed to %s (Type: %s)",
                 topic_name_.c_str(), detected_type_.c_str());
   }
 }
@@ -75,7 +74,7 @@ void GenericSubscriber::getTopicTypeFromString(
   topic_type_pair.second = tmp.substr(split_at + 1);
 }
 
-void GenericSubscriber::generic_subscriber_callback(
+void GenericSubscriber::genericSubscriberCallback(
     std::shared_ptr<rclcpp::SerializedMessage> msg) {
   InterfaceTypeName interface_type;
   getTopicTypeFromString(interface_type);
@@ -94,7 +93,7 @@ void GenericSubscriber::generic_subscriber_callback(
   auto yaml_msg = dynmsg::cpp::message_to_yaml(ros_msg);
   auto string_msg = dynmsg::yaml_to_string(yaml_msg, true, false);
   RCLCPP_INFO(this->get_logger(),
-              "[generic_subscriber_callback]\nTopic: %s\nDetected Type: "
+              "[genericSubscriberCallback]\nTopic: %s\nDetected Type: "
               "%s\nROS2 Message:\n%s",
               topic_name_.c_str(), detected_type_.c_str(), string_msg.c_str());
 
