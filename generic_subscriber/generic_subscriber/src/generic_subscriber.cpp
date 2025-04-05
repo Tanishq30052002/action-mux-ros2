@@ -1,6 +1,7 @@
 #include "generic_subscriber.h"
 
-GenericSubscriber::GenericSubscriber() : Node("generic_subscriber") {
+GenericSubscriber::GenericSubscriber(const std::string &topic_name)
+    : Node("generic_subscriber"), topic_name_(topic_name.c_str()) {
   waitForTopic();
 
   // Timer to check for active publishers and type changes

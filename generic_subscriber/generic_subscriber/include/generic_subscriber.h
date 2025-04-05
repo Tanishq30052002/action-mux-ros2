@@ -15,7 +15,7 @@ public:
    * @brief Construct a new Generic Subscriber object
    *
    */
-  GenericSubscriber();
+  GenericSubscriber(const std::string &topic_name);
 
 private:
   /**
@@ -51,7 +51,7 @@ private:
    * @return InterfaceTypeName {"std_msgs", "Bool"}
    */
   void getTopicTypeFromString(InterfaceTypeName &topic_type_pair);
-  std::string topic_name_ = "/generic_topic";
+  std::string topic_name_;
   std::string detected_type_;
   rclcpp::GenericSubscription::SharedPtr generic_subscriber_;
   rclcpp::TimerBase::SharedPtr type_check_timer_;
