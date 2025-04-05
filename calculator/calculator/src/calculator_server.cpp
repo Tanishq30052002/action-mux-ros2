@@ -1,6 +1,7 @@
 #include <calculator_server.h>
 
-CalculatorServer::CalculatorServer() : Node("calculator_action_server") {
+CalculatorServer::CalculatorServer(const float processing_time)
+    : Node("calculator_action_server"), processing_time_(processing_time) {
   server_ = rclcpp_action::create_server<Calculator>(
       this, "calculator",
       std::bind(&CalculatorServer::handleGoal, this, _1, _2),

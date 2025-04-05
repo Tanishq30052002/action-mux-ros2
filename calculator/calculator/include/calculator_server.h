@@ -15,12 +15,12 @@ using namespace std::placeholders;
 
 class CalculatorServer : public rclcpp::Node {
 public:
-  CalculatorServer();
+  CalculatorServer(const float processing_time);
 
 private:
   rclcpp_action::Server<Calculator>::SharedPtr server_;
   std::mutex goal_mutex_;
-  float processing_time_ = 5.0; // in secs
+  float processing_time_;
 
   /**
    * @brief Handle new goals
