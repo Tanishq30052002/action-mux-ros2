@@ -1,9 +1,9 @@
 <h1 align=center>
 ROS 2 Action Mux</br>
-Google Summer of Code [Assignment - PAL ROBOTICS]
 </h1>
-
-
+<h2 align=center>
+Google Summer of Code [Assignment - PAL ROBOTICS]
+</h2>
 
 ## Introduction
 
@@ -85,7 +85,6 @@ The project is organized into several directories:
     - **Python Implementation** - **Recommended**
         - `generic_subscriber_py` ROS2 pkg which contains python code for generic subscriber
             - `generic_subscriber_py` Module responsible for the creation of the generic subscriber in python
-            - `src` Final codes responsible for executing the code.
 
     - **C++ Implementation** - **WIP**
         - `generic_subscriber` ROS2 pkg which contains C++ code for generic subscriber and testing publisher
