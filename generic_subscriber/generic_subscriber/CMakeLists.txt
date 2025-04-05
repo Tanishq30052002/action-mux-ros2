@@ -13,4 +13,4 @@ include_directories(include)
 
 add_library(generic_subscriber STATIC src/generic_subscriber.cpp)
 ament_target_dependencies(generic_subscriber rclcpp dynmsg)
-target_include_directories(generic_subscriber PUBLIC ${PROJECT_SOURCE_DIR}/include ${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_cpp)
+target_include_directories(generic_subscriber PUBLIC ${PROJECT_SOURCE_DIR}/include)
