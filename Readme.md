@@ -66,7 +66,7 @@ Google Summer of Code [Assignment - PAL ROBOTICS]
     ros2 run generic_subscriber run_generic_subscriber
 
     <!-- Terminal - 2 (Testing Publisher) -->
-     ros2 run generic_subscriber run_testing_publisher
+     ros2 run generic_subscriber run_testing_publisher <MODE (1-4)> # Mode -1: For String, Mode -2: Bool, Mode -3: Twist, Mode -4: Pose
 
     ```
 

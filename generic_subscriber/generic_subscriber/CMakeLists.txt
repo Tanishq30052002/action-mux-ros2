@@ -10,7 +10,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wall -fPIC -Wp,-D_GLIBCXX_ASSERTION
 # Include directories
 include_directories(include)
 
-
 add_library(generic_subscriber STATIC src/generic_subscriber.cpp)
 ament_target_dependencies(generic_subscriber rclcpp dynmsg)
 target_include_directories(generic_subscriber PUBLIC ${PROJECT_SOURCE_DIR}/include)
+
+add_library(testing_publisher STATIC src/testing_publisher.cpp)
+ament_target_dependencies(testing_publisher rclcpp std_msgs geometry_msgs)
+target_include_directories(testing_publisher PUBLIC ${PROJECT_SOURCE_DIR}/include)
