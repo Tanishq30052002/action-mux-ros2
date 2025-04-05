@@ -63,13 +63,20 @@ void CalculatorServer::executeGoal(
       } else if (goal.operation == "multiply") {
         result->result = goal.value_1 * goal.value_2;
       } else if (goal.operation == "divide") {
-        result->result = goal.value_1 / goal.value_2;
+        if (goal.value_2)
+          result->result = goal.value_1 / goal.value_2;
+        else {
+          result->result = 0;
+          RCLCPP_ERROR(this->get_logger(),
+                       "[executeGoal] Returning 0, as operation invalid");
+        }
       } else {
         RCLCPP_ERROR(this->get_logger(), "[executeGoal] Invalid Operation");
         result->result = 0;
       }
       goal_handle->succeed(result);
-      RCLCPP_INFO(this->get_logger(), "[executeGoal] Goal Process Successfully");
+      RCLCPP_INFO(this->get_logger(),
+                  "[executeGoal] Goal Process Successfully");
     }
   }
   if (!rclcpp::ok()) {
