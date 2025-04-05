@@ -10,7 +10,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wall -fPIC -Wp,-D_GLIBCXX_ASSERTION
 # Include directories
 include_directories(include)
 include_directories(${calculate_action_pkg_INCLUDE_DIRS})
-message(STATUS "${calculate_action_pkg_INCLUDE_DIRS}")
 
 add_library(calculator_client STATIC src/calculator_client.cpp)
 ament_target_dependencies(calculator_client rclcpp rclcpp_action calculator_msgs)
