@@ -22,7 +22,7 @@ private:
   float processing_time_;
 
   /**
-   * @brief Handle new goals
+   * @brief Handle goal requests, accept or reject them
    *
    * @param uuid
    * @param goal
@@ -33,25 +33,28 @@ private:
              std::shared_ptr<const Calculator::Goal> goal);
 
   /**
-   * @brief Handle cancel requests
+   * @brief Handle cancel requests, accept or reject them, it request the
+   * cancelling of the current goal, but not guarantee that it will be cancelled
    *
-   * @param goal_handle
+   * @param goal_handle the goal handle of the current goal
    * @return rclcpp_action::CancelResponse
    */
   rclcpp_action::CancelResponse
   handleCancel(const std::shared_ptr<ServerGoalHandle> goal_handle);
 
   /**
-   * @brief Accept and process goal
+   * @brief Handle accepted goals, start a new thread to execute the goal
    *
-   * @param goal_handle
+   * @param goal_handle the goal handle of the current goal
    */
   void handleAccepted(const std::shared_ptr<ServerGoalHandle> goal_handle);
 
   /**
-   * @brief Execute goal and handle cancellation
+   * @brief Execute the goal, this function is called in a new thread. It
+   * processes the current goal and in the mean time publishes feedback, until
+   * the goal is reached or cancelled.
    *
-   * @param goal_handle
+   * @param goal_handle the goal handle of the current goal
    */
   void executeGoal(const std::shared_ptr<ServerGoalHandle> goal_handle);
 };

@@ -8,6 +8,12 @@ CalculatorClient::CalculatorClient() : Node("calculator_action_client") {
           "/calculator_goal", 10,
           std::bind(&CalculatorClient::calculatorGoalCallback, this, _1));
 
+  send_goal_options_.goal_response_callback =
+      std::bind(&CalculatorClient::goalResponseCallback, this, _1);
+  send_goal_options_.feedback_callback =
+      std::bind(&CalculatorClient::feedbackCallback, this, _1, _2);
+  send_goal_options_.result_callback =
+      std::bind(&CalculatorClient::resultCallback, this, _1);
   RCLCPP_INFO(this->get_logger(), "[CalculatorClient] Client is Ready !!!");
 }
 
@@ -41,16 +47,8 @@ void CalculatorClient::sendNewGoalToServer(
   goal.goal.value_2 = msg->value_2;
   goal.goal.operation = msg->operation;
 
-  auto send_goal_options = rclcpp_action::Client<Calculator>::SendGoalOptions();
-  send_goal_options.goal_response_callback =
-      std::bind(&CalculatorClient::goalResponseCallback, this, _1);
-  send_goal_options.feedback_callback =
-      std::bind(&CalculatorClient::feedbackCallback, this, _1, _2);
-  send_goal_options.result_callback =
-      std::bind(&CalculatorClient::resultCallback, this, _1);
-
   RCLCPP_INFO(this->get_logger(), "[sendNewGoalToServer] Sending new goal");
-  auto future_goal_handle = client_->async_send_goal(goal, send_goal_options);
+  auto future_goal_handle = client_->async_send_goal(goal, send_goal_options_);
 
   // Handle future goal assignment
   std::thread([this, future_goal_handle]() {

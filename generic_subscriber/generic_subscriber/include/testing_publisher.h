@@ -7,6 +7,15 @@
 
 class TestingPublisher : public rclcpp::Node {
 public:
+  /**
+   * @brief Construct a new Testing Publisher object. Based on the mode, it will
+   * create a publisher which publishes at 1Hz.
+   *
+   * @param topic_name the name of the topic to publish to
+   * @param mode the mode of the publisher. 1 for string, 2 for bool, 3 for
+   * twist, 4 for pose
+   *
+   */
   TestingPublisher(const std::string &topic_name, const int mode);
 
 private:
