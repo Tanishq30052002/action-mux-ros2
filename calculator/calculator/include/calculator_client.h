@@ -25,7 +25,8 @@ private:
   rclcpp_action::Client<Calculator>::SharedPtr client_;
   rclcpp::Subscription<calculator_msgs::msg::CalculatorGoal>::SharedPtr
       calculator_goal_subscriber_;
-
+  rclcpp_action::Client<Calculator>::SendGoalOptions send_goal_options_;
+  
   /**
    * @brief
    *
