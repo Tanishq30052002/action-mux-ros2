@@ -13,15 +13,18 @@
 class CalculatorGoalPublisher : public rclcpp::Node {
 public:
   /**
-   * @brief Construct a new Calculator Goal Publisher object
+   * @brief Construct a new Calculator Goal Publisher object, which creates a
+   * timer which publishes the goal on a topic at a certain time interval.
    *
-   * @param time_interval_s
+   * @param time_interval_s time interval in seconds
+   * @note The time interval is the time between two consecutive goal
    */
   CalculatorGoalPublisher(unsigned int time_interval_s);
 
 private:
   /**
-   * @brief
+   * @brief This function is called by the timer and publishes a new goal on the
+   * topic. It generates random values for the goal and publishes it.
    *
    */
   void calculatorGoalPublisher();
