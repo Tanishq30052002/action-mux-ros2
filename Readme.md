@@ -20,7 +20,7 @@ Google Summer of Code [Assignment - PAL ROBOTICS]
 - [Code Structure](#code-structure)
 
 ## Setup
-
+**Currently Project is TESTED AND IMPLEMENTED ON ROS2 HUMBLE**
 ### Building the Project
 
 - Follow the steps to build the project
