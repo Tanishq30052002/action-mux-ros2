@@ -82,10 +82,11 @@ void GenericSubscriber::genericSubscriberCallback(
 
   RosMessage_Cpp ros_msg;
   ros_msg.type_info = dynmsg::cpp::get_type_info(interface_type);
+  rcl_allocator_t *msg_alloc =
+      &msg.get()->get_rcl_serialized_message().allocator;
 
-  dynmsg::cpp::ros_message_with_typeinfo_init(
-      ros_msg.type_info, &ros_msg,
-      &msg.get()->get_rcl_serialized_message().allocator);
+  dynmsg::cpp::ros_message_with_typeinfo_init(ros_msg.type_info, &ros_msg,
+                                              msg_alloc);
 
   auto ts_lib = rclcpp::get_typesupport_library(detected_type_.c_str(),
                                                 "rosidl_typesupport_cpp");
