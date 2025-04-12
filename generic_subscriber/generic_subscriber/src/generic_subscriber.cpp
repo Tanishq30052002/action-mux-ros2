@@ -82,14 +82,17 @@ void GenericSubscriber::genericSubscriberCallback(
 
   RosMessage_Cpp ros_msg;
   ros_msg.type_info = dynmsg::cpp::get_type_info(interface_type);
-  rcl_allocator_t *msg_alloc =
-      &msg.get()->get_rcl_serialized_message().allocator;
 
-  ros_msg.data = static_cast<uint8_t *>(
-      msg_alloc->allocate(ros_msg.type_info->size_of_, msg_alloc->state));
+  dynmsg::cpp::ros_message_with_typeinfo_init(
+      ros_msg.type_info, &ros_msg,
+      &msg.get()->get_rcl_serialized_message().allocator);
 
-  ros_msg.type_info->init_function(
-      ros_msg.data, rosidl_runtime_cpp::MessageInitialization::ZERO);
+  auto ts_lib = rclcpp::get_typesupport_library(detected_type_.c_str(),
+                                                "rosidl_typesupport_cpp");
+  auto ts_handle = rclcpp::get_typesupport_handle(
+      detected_type_.c_str(), "rosidl_typesupport_cpp", *ts_lib);
+  auto serializer = rclcpp::SerializationBase(ts_handle);
+  serializer.deserialize_message(msg.get(), ros_msg.data);
 
   auto yaml_msg = dynmsg::cpp::message_to_yaml(ros_msg);
   auto string_msg = dynmsg::yaml_to_string(yaml_msg, true, false);
@@ -97,7 +100,4 @@ void GenericSubscriber::genericSubscriberCallback(
               "[genericSubscriberCallback]\nTopic: %s\nDetected Type: "
               "%s\nROS2 Message:\n%s",
               topic_name_.c_str(), detected_type_.c_str(), string_msg.c_str());
-
-  ros_msg.type_info->fini_function(ros_msg.data);
-  msg_alloc->deallocate(ros_msg.data, msg_alloc->state);
 }
