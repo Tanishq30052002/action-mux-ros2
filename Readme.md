@@ -59,11 +59,11 @@ Google Summer of Code [Assignment - PAL ROBOTICS]
 - Follow the steps to run the TASK - 2
     ```bash
     <!-- Terminal - 1 (Generic Subscriber) -->
-    ##### TO RUN GENERIC SUBSCRIBER IN PYTHON  (RECOMMENDED) #####
-    ros2 run generic_subscriber_py run_generic_subscriber
-
-    ##### TO RUN GENERIC SUBSCRIBER IN C++  (WIP) ####
+    ##### TO RUN GENERIC SUBSCRIBER IN C++ ####
     ros2 run generic_subscriber run_generic_subscriber
+
+    ##### TO RUN GENERIC SUBSCRIBER IN PYTHON #####
+    ros2 run generic_subscriber_py run_generic_subscriber
 
     <!-- Terminal - 2 (Testing Publisher) -->
      ros2 run generic_subscriber run_testing_publisher <MODE (1-4)> # Mode -1: For String, Mode -2: Bool, Mode -3: Twist, Mode -4: Pose
@@ -83,11 +83,11 @@ The project is organized into several directories:
       - `src` Final codes responsible for executing the code.
 
 - TASK - 2
-    - **Python Implementation** - **Recommended**
-        - `generic_subscriber_py` ROS2 pkg which contains python code for generic subscriber
-            - `generic_subscriber_py` Module responsible for the creation of the generic subscriber in python
-
-    - **C++ Implementation** - **WIP**
+    - **C++ Implementation**
         - `generic_subscriber` ROS2 pkg which contains C++ code for generic subscriber and testing publisher
             - `generic_subscriber` Module responsible for the creation of the generic subscriber and testing publisher in c++
             - `src` Final codes responsible for executing the code.
+
+    - **Python Implementation**
+        - `generic_subscriber_py` ROS2 pkg which contains python code for generic subscriber
+            - `generic_subscriber_py` Module responsible for the creation of the generic subscriber in python
