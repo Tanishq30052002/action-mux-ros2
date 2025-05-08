@@ -91,6 +91,13 @@ void GenericSubscriber::genericSubscriberCallback(
   ros_msg.type_info->init_function(
       ros_msg.data, rosidl_runtime_cpp::MessageInitialization::ZERO);
 
+  auto ts_lib = rclcpp::get_typesupport_library(detected_type_.c_str(),
+                                                "rosidl_typesupport_cpp");
+  auto ts_handle = rclcpp::get_typesupport_handle(
+      detected_type_.c_str(), "rosidl_typesupport_cpp", *ts_lib);
+  auto serializer = rclcpp::SerializationBase(ts_handle);
+  serializer.deserialize_message(msg.get(), ros_msg.data);
+
   auto yaml_msg = dynmsg::cpp::message_to_yaml(ros_msg);
   auto string_msg = dynmsg::yaml_to_string(yaml_msg, true, false);
   RCLCPP_INFO(this->get_logger(),

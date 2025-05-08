@@ -6,6 +6,7 @@
 #include "dynmsg/message_reading.hpp"
 #include "dynmsg/typesupport.hpp"
 #include "dynmsg/yaml_utils.hpp"
+#include "rclcpp/serialization.hpp"
 
 using namespace std::placeholders;
 
